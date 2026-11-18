@@ -48,21 +48,20 @@
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
-                        'float-slow': 'float 9s ease-in-out infinite',
                         'pulse-soft': 'pulseSoft 2.5s infinite',
-                        'fade-up': 'fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
-                            '50%': { transform: 'translateY(-14px) rotate(2deg)' },
+                            '50%': { transform: 'translateY(-12px) rotate(2deg)' },
                         },
                         pulseSoft: {
                             '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(217, 123, 147, 0.45)' },
                             '50%': { transform: 'scale(1.03)', boxShadow: '0 0 0 14px rgba(217, 123, 147, 0)' },
                         },
                         fadeUp: {
-                            '0%': { opacity: '0', transform: 'translateY(24px)' },
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         }
                     }
@@ -76,6 +75,7 @@
             max-width: 100%;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
         }
 
         body {
@@ -88,12 +88,25 @@
             padding-right: env(safe-area-inset-right);
         }
 
-        /* Учёт выреза экрана (notch) в standalone-режиме */
-        .safe-top-bar {
-            top: max(1rem, calc(env(safe-area-inset-top) + 0.5rem));
+        /* Фиксированный плавный градиентный фон без дёрганья на iOS/Android */
+        .pastel-bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-color: #FFFDF9;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(252, 231, 235, 0.78) 0px, transparent 55%),
+                radial-gradient(at 85% 20%, rgba(237, 231, 246, 0.78) 0px, transparent 50%),
+                radial-gradient(at 75% 75%, rgba(253, 232, 223, 0.78) 0px, transparent 55%),
+                radial-gradient(at 20% 85%, rgba(232, 241, 236, 0.72) 0px, transparent 50%);
+            transform: translateZ(0);
         }
 
-        /* Резиновая типографика (Fluid Typography) */
+        .safe-top-bar {
+            top: max(0.85rem, calc(env(safe-area-inset-top) + 0.4rem));
+        }
+
         .fluid-h1 {
             font-size: clamp(2.25rem, 6.5vw, 4.75rem);
             line-height: 1.08;
@@ -107,30 +120,18 @@
             line-height: 1.65;
         }
 
-        /* Поддержка динамической высоты экрана на iOS Safari */
         .min-h-dvh-screen {
             min-height: 100vh;
             min-height: 100dvh;
         }
 
-        /* Мягкий градиентный фон */
-        .pastel-mesh {
-            background-color: #FFFDF9;
-            background-image: 
-                radial-gradient(at 15% 15%, rgba(252, 231, 235, 0.75) 0px, transparent 55%),
-                radial-gradient(at 85% 20%, rgba(237, 231, 246, 0.75) 0px, transparent 50%),
-                radial-gradient(at 75% 75%, rgba(253, 232, 223, 0.75) 0px, transparent 55%),
-                radial-gradient(at 20% 85%, rgba(232, 241, 236, 0.7) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
-
-        /* Glassmorphism карточки */
+        /* Облегчённый Glassmorphism для плавного скролла на телефонах */
         .glass-card {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.88);
-            box-shadow: 0 12px 35px -8px rgba(186, 134, 150, 0.14);
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            box-shadow: 0 10px 30px -8px rgba(186, 134, 150, 0.14);
         }
 
         /* 3D Flip Cards */
@@ -141,7 +142,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.75s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-style: preserve-3d;
         }
         .flip-card.flipped .flip-inner {
@@ -159,46 +160,9 @@
             transform: rotateY(180deg);
         }
 
-        /* 3D Envelope Animation */
-        .envelope-wrapper {
-            perspective: 1200px;
-        }
-        .envelope-flap {
-            transform-origin: top center;
-            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s 0.3s;
-            z-index: 30;
-        }
-        .envelope-open .envelope-flap {
-            transform: rotateX(180deg);
-            z-index: 5;
-        }
-        .letter-sheet {
-            transition: transform 0.8s cubic-bezier(0.34, 1.35, 0.64, 1) 0.25s, opacity 0.5s ease 0.2s;
-            transform: translateY(0);
-            z-index: 15;
-        }
-        .envelope-open .letter-sheet {
-            transform: translateY(-45px);
-            z-index: 35;
-        }
-
-        /* Скрытие скроллбара в модалке */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Стили для печати билета */
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #date-ticket-printable, #date-ticket-printable * {
-                visibility: visible;
-            }
+            body * { visibility: hidden; }
+            #date-ticket-printable, #date-ticket-printable * { visibility: visible; }
             #date-ticket-printable {
                 position: fixed;
                 left: 50%;
@@ -212,15 +176,18 @@
         }
     </style>
 </head>
-<body class="pastel-mesh antialiased selection:bg-roseSoft selection:text-ink">
+<body class="antialiased selection:bg-roseSoft selection:text-ink">
+
+    <!-- Фиксированный слой фона -->
+    <div class="pastel-bg-layer"></div>
 
     <!-- Фоновый Canvas для падающих лепестков и сердечек -->
     <canvas id="petals-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
-    <!-- Верхняя панель управления: Музыка + Установить PWA + Кастомизация -->
+    <!-- Верхняя панель управления -->
     <header class="fixed safe-top-bar left-3 right-3 sm:left-4 sm:right-4 z-40 flex justify-between items-center gap-2 pointer-events-none max-w-6xl mx-auto">
         <!-- Кнопка фоновой мелодии -->
-        <button id="music-toggle-btn" onclick="toggleMusic()" class="pointer-events-auto glass-card px-3.5 sm:px-4 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white/90 transition-all shadow-sm group shrink-0">
+        <button id="music-toggle-btn" type="button" onclick="toggleMusic()" class="pointer-events-auto glass-card px-3.5 sm:px-4 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white transition-all shadow-sm group shrink-0 cursor-pointer">
             <span id="music-icon" class="w-6 h-6 rounded-full bg-blush flex items-center justify-center text-roseDeep group-hover:scale-110 transition-transform">
                 <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
             </span>
@@ -234,7 +201,7 @@
 
         <div class="flex items-center gap-2 pointer-events-auto">
             <!-- Кнопка установки на рабочий стол / экран Домой -->
-            <button id="pwa-install-btn" onclick="handleInstallClick()" class="hidden glass-card px-3.5 sm:px-4 py-2.5 rounded-full items-center gap-1.5 text-xs sm:text-sm font-medium text-roseDeep hover:bg-white/90 transition-all shadow-sm border border-roseSoft/70">
+            <button id="pwa-install-btn" type="button" onclick="handleInstallClick()" class="hidden glass-card px-3.5 sm:px-4 py-2.5 rounded-full items-center gap-1.5 text-xs sm:text-sm font-medium text-roseDeep hover:bg-white transition-all shadow-sm border border-roseSoft/70 cursor-pointer">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
@@ -242,8 +209,8 @@
                 <span class="sm:hidden">На экран</span>
             </button>
 
-            <!-- Кнопка «Настроить под себя» -->
-            <button onclick="toggleCustomizer()" class="glass-card px-3.5 sm:px-4 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white/90 transition-all shadow-sm border border-roseSoft/60">
+            <!-- Кнопка «Настроить» -->
+            <button type="button" onclick="toggleCustomizer()" class="glass-card px-3.5 sm:px-4 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white transition-all shadow-sm border border-roseSoft/60 cursor-pointer">
                 <svg class="w-4 h-4 text-roseDeep shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                 </svg>
@@ -252,43 +219,133 @@
         </div>
     </header>
 
-    <!-- Модальное окно инструкции установки PWA (для iOS Safari и браузеров без авто-промпта) -->
-    <div id="pwa-guide-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div onclick="closePwaGuideModal()" class="absolute inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"></div>
-        <div class="relative z-10 glass-card bg-cream/98 rounded-[2rem] p-6 sm:p-8 max-w-md w-full border-2 border-roseSoft shadow-2xl animate-fade-up">
-            <button onclick="closePwaGuideModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-blush/80 flex items-center justify-center text-ink hover:bg-roseSoft transition-colors">
+    <!-- =========================================================
+         ВЫДВИЖНАЯ ПАНЕЛЬ НАСТРОЕК (CUSTOMIZER DRAWER)
+         ========================================================= -->
+    <div id="customizer-overlay" onclick="toggleCustomizer()" class="fixed inset-0 bg-ink/40 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="customizer-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream/98 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-roseSoft/60">
+        <div class="p-5 sm:p-6 border-b border-roseSoft/40 flex items-center justify-between bg-white/80">
+            <div>
+                <h3 class="font-serif text-2xl font-bold text-ink">Настройка приглашения</h3>
+                <p class="text-xs text-inkLight">Изменения применяются мгновенно</p>
+            </div>
+            <button type="button" onclick="toggleCustomizer()" class="w-9 h-9 rounded-full bg-blush flex items-center justify-center text-ink hover:bg-roseSoft transition-colors cursor-pointer">
                 ✕
             </button>
+        </div>
 
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5 text-sm">
+            <!-- Кому приглашение -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-2">Кому адресовано?</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" id="gender-her-btn" onclick="setRecipientGender('her')" class="py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer">
+                        Девушке 🌷
+                    </button>
+                    <button type="button" id="gender-him-btn" onclick="setRecipientGender('him')" class="py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer">
+                        Парню ✨
+                    </button>
+                </div>
+            </div>
+
+            <!-- Имена -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Имя приглашаемого</label>
+                    <input type="text" id="input-recipient-name" oninput="updatePersonalization()" value="Алиса" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Твоё имя</label>
+                    <input type="text" id="input-sender-name" oninput="updatePersonalization()" value="Артём" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink">
+                </div>
+            </div>
+
+            <!-- Дата и время -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Дата свидания</label>
+                    <input type="date" id="input-date" onchange="updatePersonalization()" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Время встречи</label>
+                    <input type="time" id="input-time" onchange="updatePersonalization()" value="19:00" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Интеграция с Telegram -->
+            <div class="p-4 rounded-2xl bg-lavender/45 border border-roseSoft/60 space-y-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">✈️</span>
+                    <h4 class="font-semibold text-ink text-xs uppercase tracking-wider">Получение ответа в Telegram</h4>
+                </div>
+                <div>
+                    <label class="block text-xs text-inkLight mb-1">Твой @username в Telegram (для кнопки перехода в чат)</label>
+                    <input type="text" id="input-tg-username" oninput="updatePersonalization()" placeholder="например: artem_ivanov" class="w-full px-3.5 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                </div>
+                <details class="text-xs text-inkLight">
+                    <summary class="cursor-pointer font-medium text-roseDeep select-none">Мгновенная отправка через Telegram Bot (опционально)</summary>
+                    <div class="mt-2.5 space-y-2.5 pt-2 border-t border-roseSoft/40">
+                        <div>
+                            <label class="block mb-1">Bot Token (от @BotFather)</label>
+                            <input type="text" id="input-tg-token" oninput="updatePersonalization()" placeholder="123456789:AAF..." class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs">
+                        </div>
+                        <div>
+                            <label class="block mb-1">Твой Chat ID (от @userinfobot)</label>
+                            <input type="text" id="input-tg-chatid" oninput="updatePersonalization()" placeholder="например: 987654321" class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs">
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Добавить свой вариант свидания -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Добавить свой сценарий в список</label>
+                <div class="flex gap-2">
+                    <input type="text" id="input-custom-scenario" placeholder="Например: Поход в планетарий" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <button type="button" onclick="addCustomScenarioFromDrawer()" class="px-4 py-2.5 rounded-2xl bg-roseDeep text-white font-medium hover:opacity-90 transition-opacity cursor-pointer">
+                        +
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 sm:p-5 border-t border-roseSoft/40 bg-white/90 space-y-2.5">
+            <button type="button" onclick="copyShareableLink()" class="w-full py-3 rounded-2xl bg-blush text-roseDeep border border-roseSoft font-semibold text-xs sm:text-sm hover:bg-roseSoft/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>🔗 Скопировать персональную ссылку</span>
+            </button>
+            <button type="button" onclick="toggleCustomizer()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:opacity-95 transition-opacity cursor-pointer">
+                Готово ✨
+            </button>
+        </div>
+    </aside>
+
+    <!-- Модальное окно инструкции установки PWA -->
+    <div id="pwa-guide-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closePwaGuideModal()" class="absolute inset-0 bg-ink/40 backdrop-blur-xs transition-opacity"></div>
+        <div class="relative z-10 glass-card bg-cream rounded-[2rem] p-6 sm:p-8 max-w-md w-full border-2 border-roseSoft shadow-2xl">
+            <button type="button" onclick="closePwaGuideModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-blush flex items-center justify-center text-ink hover:bg-roseSoft transition-colors cursor-pointer">
+                ✕
+            </button>
             <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-roseDeep to-[#E89EB0] text-white flex items-center justify-center text-2xl shadow-md mb-4">
                 💌
             </div>
-
             <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink leading-tight">
                 Добавить как приложение
             </h3>
             <p class="text-xs sm:text-sm text-inkLight mt-2 leading-relaxed">
                 Установи приглашение на главный экран телефона или рабочий стол — оно откроется на весь экран без рамок браузера с собственной иконкой.
             </p>
-
-            <!-- Инструкция для iOS Safari -->
-            <div id="pwa-ios-steps" class="mt-5 space-y-3 bg-white/80 p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
+            <div id="pwa-ios-steps" class="mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
                 <div class="flex items-start gap-3">
                     <span class="w-6 h-6 rounded-full bg-blush text-roseDeep font-bold flex items-center justify-center shrink-0 text-xs">1</span>
-                    <p>Нажми кнопку <strong>«Поделиться»</strong> на нижней или верхней панели браузера Safari
-                        <span class="inline-flex items-center justify-center align-middle mx-1 px-1.5 py-0.5 rounded bg-lavender/80 text-ink">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        </span>
-                    </p>
+                    <p>Нажми кнопку <strong>«Поделиться»</strong> на панели браузера Safari.</p>
                 </div>
                 <div class="flex items-start gap-3">
                     <span class="w-6 h-6 rounded-full bg-blush text-roseDeep font-bold flex items-center justify-center shrink-0 text-xs">2</span>
-                    <p>Пролистай меню вниз и выбери пункт <strong>«На экран «Домой»»</strong> (Add to Home Screen), затем нажми <strong>«Добавить»</strong>.</p>
+                    <p>Пролистай меню вниз и выбери <strong>«На экран «Домой»»</strong>, затем нажми <strong>«Добавить»</strong>.</p>
                 </div>
             </div>
-
-            <!-- Инструкция для Android / Desktop -->
-            <div id="pwa-desktop-steps" class="hidden mt-5 space-y-3 bg-white/80 p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
+            <div id="pwa-desktop-steps" class="hidden mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
                 <div class="flex items-start gap-3">
                     <span class="w-6 h-6 rounded-full bg-blush text-roseDeep font-bold flex items-center justify-center shrink-0 text-xs">1</span>
                     <p>Открой меню браузера (три точки <strong>⋮</strong> в правом верхнем углу) или нажми значок установки в адресной строке.</p>
@@ -298,22 +355,17 @@
                     <p>Выбери <strong>«Установить приложение»</strong> или <strong>«Добавить на главный экран»</strong>.</p>
                 </div>
             </div>
-
-            <div class="mt-4 p-3 rounded-xl bg-peach/60 text-[11px] sm:text-xs text-inkLight">
-                💡 <strong>Совет:</strong> Сначала настрой имена и дату в разделе «Настроить», чтобы ярлык на экране сохранил твои персональные параметры.
-            </div>
-
-            <button onclick="closePwaGuideModal()" class="mt-5 w-full py-3 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:opacity-95 transition-opacity">
+            <button type="button" onclick="closePwaGuideModal()" class="mt-5 w-full py-3 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:opacity-95 transition-opacity cursor-pointer">
                 Понятно, спасибо ✨
             </button>
         </div>
     </div>
 
-    <!-- Уведомление (Toast) вместо alert() -->
-    <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
-        <div class="glass-card bg-white/95 px-6 py-3 rounded-full shadow-xl border border-roseSoft flex items-center gap-2.5 text-sm font-medium text-ink">
+    <!-- Уведомление (Toast) -->
+    <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300 w-[90%] max-w-md">
+        <div class="glass-card bg-white px-5 py-3 rounded-full shadow-xl border border-roseSoft flex items-center justify-center gap-2.5 text-xs sm:text-sm font-medium text-ink text-center">
             <span id="toast-emoji">💖</span>
-            <span id="toast-text">Скопировано в буфер обмена!</span>
+            <span id="toast-text">Скопировано!</span>
         </div>
     </div>
 
@@ -321,12 +373,6 @@
          1. ГЛАВНЫЙ ЭКРАН (HERO SECTION)
          ========================================================= -->
     <section class="relative min-h-dvh-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-24 pb-12 text-center z-10 overflow-hidden">
-        <!-- Декоративные параллакс-сферы -->
-        <div data-parallax="0.15" class="parallax-el absolute top-24 left-[8%] w-32 h-32 sm:w-48 sm:h-48 rounded-full bg-roseSoft/30 blur-2xl pointer-events-none"></div>
-        <div data-parallax="-0.2" class="parallax-el absolute bottom-24 right-[10%] w-40 h-40 sm:w-64 sm:h-64 rounded-full bg-lavender/60 blur-2xl pointer-events-none"></div>
-        <div data-parallax="0.1" class="parallax-el absolute top-1/3 right-[18%] w-24 h-24 rounded-full bg-peach/70 blur-xl pointer-events-none"></div>
-
-        <!-- Плавающий SVG-декор -->
         <div class="animate-float mb-6 inline-flex items-center gap-2 px-5 py-2 rounded-full glass-card text-xs sm:text-sm font-medium tracking-wide text-roseDeep uppercase">
             <span>✨ Личное послание</span>
             <span>•</span>
@@ -342,7 +388,7 @@
         </p>
 
         <div class="mt-10 w-full sm:w-auto flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay: 0.3s;">
-            <button onclick="openInvitationHero()" class="w-full sm:w-auto justify-center animate-pulse-soft px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-base sm:text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-3 cursor-pointer">
+            <button type="button" onclick="openInvitationHero()" class="w-full sm:w-auto justify-center animate-pulse-soft px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-base sm:text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-3 cursor-pointer">
                 <span>Открыть приглашение</span>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
@@ -350,8 +396,7 @@
             </button>
         </div>
 
-        <!-- Изящная SVG-веточка внизу -->
-        <div class="mt-16 opacity-60">
+        <div class="mt-14 opacity-60">
             <svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 16C35 16 45 6 60 6C75 6 85 16 110 16" stroke="#D97B93" stroke-width="1.2" stroke-linecap="round"/>
                 <path d="M60 6C57 12 52 15 46 15C52 15 57 18 60 24C63 18 68 15 74 15C68 15 63 12 60 6Z" fill="#F4C2CC"/>
@@ -362,50 +407,35 @@
     <!-- =========================================================
          2. ИНТЕРАКТИВНЫЙ КОНВЕРТ / ПИСЬМО
          ========================================================= -->
-    <section id="envelope-section" class="relative py-16 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto z-10">
-        <div class="text-center mb-10 sm:mb-12">
+    <section id="envelope-section" class="relative py-14 sm:py-20 px-4 sm:px-6 max-w-4xl mx-auto z-10">
+        <div class="text-center mb-10">
             <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Шаг первый</span>
             <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">Маленькое письмо для тебя</h2>
-            <p class="text-sm sm:text-base text-inkLight mt-2">Нажми на сургучную печать, чтобы распечатать конверт</p>
+            <p class="text-sm sm:text-base text-inkLight mt-2">Нажми на сургучную печать, чтобы свернуть или раскрыть конверт</p>
         </div>
 
-        <div class="envelope-wrapper max-w-xl mx-auto pt-12 pb-6">
-            <div id="envelope-card" onclick="toggleEnvelope()" class="relative cursor-pointer select-none mx-auto transition-transform duration-500 hover:scale-[1.01]">
-                
-                <!-- Само развернутое письмо (выдвигается вверх) -->
-                <div id="letter-content" class="letter-sheet relative bg-[#FFFDFB] rounded-3xl p-6 sm:p-10 shadow-xl border border-roseSoft/50 mx-2 sm:mx-4">
+        <div class="max-w-xl mx-auto pt-4 pb-6">
+            <div id="envelope-card" onclick="toggleEnvelope()" class="relative cursor-pointer select-none mx-auto transition-transform duration-300">
+                <div id="letter-content" class="relative bg-[#FFFDFB] rounded-3xl p-6 sm:p-10 shadow-xl border border-roseSoft/50 mx-1 sm:mx-4">
                     <div class="flex justify-between items-start mb-4">
                         <span class="font-serif italic text-lg text-roseDeep" id="letter-greeting">Дорогая Алиса,</span>
                         <span class="text-xs text-inkLight bg-blush/60 px-3 py-1 rounded-full">С теплом 💌</span>
                     </div>
                     
-                    <div id="letter-body" class="space-y-3.5 text-sm sm:text-base text-ink/90 leading-relaxed font-normal">
-                        <p>
-                            Иногда среди бесконечных дел и сообщений хочется просто нажать на паузу, выдохнуть и провести время с человеком, рядом с которым легко и спокойно.
-                        </p>
-                        <p>
-                            Мне очень нравится, как с тобой можно говорить обо всём на свете — от серьёзных мыслей до самых глупых шуток, и время при этом летит совершенно незаметно.
-                        </p>
-                        <p>
-                            Поэтому я <span data-gender-verb="decide">решил</span> не ждать особого повода в календаре, а создать этот повод сам. Пойдём со мной на свидание?
-                        </p>
-                    </div>
+                    <div id="letter-body" class="space-y-3.5 text-sm sm:text-base text-ink/90 leading-relaxed font-normal"></div>
 
                     <div class="mt-6 pt-4 border-t border-roseSoft/40 flex items-center justify-between">
-                        <span class="text-xs text-inkLight italic">Нажми ещё раз, чтобы свернуть</span>
-                        <span class="font-serif italic text-xl font-semibold text-ink">Твой <span id="letter-sender">Артём</span></span>
+                        <span class="text-xs text-inkLight italic">Нажми на печать ниже</span>
+                        <span class="font-serif italic text-xl font-semibold text-ink" id="letter-sender">Твой Артём</span>
                     </div>
                 </div>
 
-                <!-- Декоративная плашка конверта снизу (визуальный кармашек) -->
-                <div id="envelope-closed-cover" class="mt-[-20px] relative z-20 glass-card rounded-3xl p-6 bg-gradient-to-br from-blush/90 via-white/90 to-peach/90 border border-roseSoft flex flex-col items-center justify-center text-center shadow-lg">
-                    <!-- Сургучная печать -->
-                    <div id="wax-seal" class="w-14 h-14 rounded-full bg-gradient-to-br from-roseDeep to-[#B85770] text-white flex items-center justify-center shadow-md border-4 border-roseSoft/60 transition-transform duration-500 hover:rotate-12">
+                <div class="mt-[-18px] relative z-20 glass-card rounded-3xl p-5 bg-gradient-to-br from-blush/95 via-white/95 to-peach/95 border border-roseSoft flex flex-col items-center justify-center text-center shadow-lg">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-roseDeep to-[#B85770] text-white flex items-center justify-center shadow-md border-4 border-roseSoft/60">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     </div>
                     <p id="envelope-hint-text" class="mt-3 text-xs font-semibold uppercase tracking-widest text-roseDeep">Конверт открыт • Нажми, чтобы закрыть</p>
                 </div>
-
             </div>
         </div>
     </section>
@@ -413,22 +443,19 @@
     <!-- =========================================================
          3. «ПОЧЕМУ ИМЕННО ТЫ?» (FLIP CARDS)
          ========================================================= -->
-    <section class="relative py-16 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto z-10">
-        <div class="text-center mb-10 sm:mb-12">
-            <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">6 маленьких истин</span>
+    <section class="relative py-14 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="text-center mb-10">
+            <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Маленькие истины</span>
             <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">Почему именно ты?</h2>
             <p class="text-sm sm:text-base text-inkLight mt-2">Нажми на любую карточку, чтобы перевернуть её</p>
         </div>
 
-        <div id="reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Карточки рендерятся из JS -->
-        </div>
+        <div id="reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
 
-        <!-- Кнопка добавить свою причину -->
         <div class="mt-10 max-w-lg mx-auto">
             <div class="glass-card p-2 rounded-full flex items-center gap-2">
                 <input type="text" id="new-reason-input" placeholder="Добавить ещё одну причину..." class="flex-1 bg-transparent px-4 py-2 text-sm text-ink placeholder:text-inkLight/70 focus:outline-none">
-                <button onclick="addCustomReason()" class="px-5 py-2.5 rounded-full bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0">
+                <button type="button" onclick="addCustomReason()" class="px-5 py-2.5 rounded-full bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0 cursor-pointer">
                     + Добавить
                 </button>
             </div>
@@ -438,30 +465,25 @@
     <!-- =========================================================
          4. КОНСТРУКТОР ИДЕАЛЬНОГО СВИДАНИЯ
          ========================================================= -->
-    <section class="relative py-16 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto z-10">
-        <div class="text-center mb-10 sm:mb-12">
+    <section class="relative py-14 sm:py-20 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="text-center mb-10">
             <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Твой выбор</span>
             <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">Каким будет наш вечер?</h2>
             <p class="text-sm sm:text-base text-inkLight mt-2">Выбери один или несколько сценариев, которые откликаются больше всего</p>
         </div>
 
-        <div id="scenarios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Карточки сценариев рендерятся из JS -->
-        </div>
+        <div id="scenarios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6"></div>
 
-        <!-- Поле для своего варианта -->
         <div class="mt-8 glass-card rounded-3xl p-5 sm:p-6 max-w-2xl mx-auto">
             <label class="block text-sm font-medium text-ink mb-2">✨ Или предложи свой идеальный вариант:</label>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <input type="text" id="user-custom-idea" oninput="updateCustomIdea(this.value)" placeholder="Например: Покататься на ночном трамвае и поесть мороженое..." class="flex-1 px-4 py-3 rounded-2xl bg-white/80 border border-roseSoft/60 focus:outline-none focus:border-roseDeep text-sm text-ink">
-            </div>
+            <input type="text" id="user-custom-idea" oninput="updateCustomIdea(this.value)" placeholder="Например: Покататься на ночном трамвае и поесть мороженое..." class="w-full px-4 py-3 rounded-2xl bg-white border border-roseSoft/60 focus:outline-none focus:border-roseDeep text-sm text-ink">
         </div>
     </section>
 
     <!-- =========================================================
          5. МЕНЮ НАСТРОЕНИЯ И УГОЩЕНИЙ
          ========================================================= -->
-    <section class="relative py-16 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto z-10">
+    <section class="relative py-14 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto z-10">
         <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-12">
             <div class="text-center mb-8 sm:mb-10">
                 <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Детали атмосферы</span>
@@ -469,25 +491,22 @@
                 <p class="text-sm sm:text-base text-inkLight mt-2">Собери идеальный коктейль из вкусов и эмоций</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Напитки -->
-                <div class="bg-white/60 rounded-3xl p-5 border border-white">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-white/75 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>☕</span> Напитки
                     </h3>
                     <div id="drinks-list" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <!-- Угощения -->
-                <div class="bg-white/60 rounded-3xl p-5 border border-white">
+                <div class="bg-white/75 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>🥐</span> Десерты и еда
                     </h3>
                     <div id="treats-list" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <!-- Вайб вечера -->
-                <div class="bg-white/60 rounded-3xl p-5 border border-white">
+                <div class="bg-white/75 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>✨</span> Вайб вечера
                     </h3>
@@ -500,7 +519,7 @@
     <!-- =========================================================
          6. ТАЙМЕР ОБРАТНОГО ОТСЧЕТА
          ========================================================= -->
-    <section class="relative py-14 sm:py-16 px-4 sm:px-6 max-w-4xl mx-auto z-10 text-center">
+    <section class="relative py-12 sm:py-16 px-4 sm:px-6 max-w-4xl mx-auto z-10 text-center">
         <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Считаем мгновения</span>
         <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">До нашей встречи осталось</h2>
         <p id="countdown-date-display" class="text-sm sm:text-base text-inkLight mt-2 mb-8">Загрузка даты...</p>
@@ -526,127 +545,25 @@
     </section>
 
     <!-- =========================================================
-         7. КУПОНЫ НА СВИДАНИЕ (ИНТЕРАКТИВНЫЕ БИЛЕТИКИ)
+         7. КУПОНЫ НА СВИДАНИЕ
          ========================================================= -->
-    <section class="relative py-16 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto z-10">
-        <div class="text-center mb-10 sm:mb-12">
+    <section class="relative py-14 sm:py-20 px-4 sm:px-6 max-w-5xl mx-auto z-10">
+        <div class="text-center mb-10">
             <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Приятные бонусы</span>
             <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">Твои купоны на этот вечер</h2>
             <p class="text-sm sm:text-base text-inkLight mt-2">Нажми на билетик, чтобы активировать и забрать его с собой</p>
         </div>
 
-        <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <!-- Купоны рендерятся из JS -->
-        </div>
+        <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5"></div>
     </section>
 
     <!-- =========================================================
-         8. ФИНАЛЬНЫЙ БЛОК «ТЫ ПОЙДЕШЬ СО МНОЙ?» + DATE PASS
+         8. ФИНАЛЬНЫЙ БЛОК «ТЫ ПОЙДЕШЬ СО МНОЙ?» + DATE PASS + TELEGRAM
          ========================================================= -->
-    <section id="final-section" class="relative py-24 px-4 max-w-4xl mx-auto z-10">
+    <section id="final-section" class="relative py-16 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto z-10">
         
         <!-- Карточка с вопросом -->
-        <div id="question-box" class="glass-card rounded-[2.5rem] p-8 sm:p-14 text-center relative overflow-hidden min-h-[380px] flex flex-col items-center justify-center border-2 border-white">
-            <div class="w-16 h-16 rounded-full bg-blush flex items-center justify-center text-3xl mb-5 animate-bounce">
-                💌
-            </div>
-            <h2 class="font-serif text-4xl sm:text-6xl font-semibold text-ink leading-tight">
-                Так что скажешь, <span id="final-name" class="italic text-roseDeep">Алиса</span>?<br>Пойдёшь со мной?
-            </h2>
-            <p class="text-sm sm:text-base text-inkLight mt-3 max-w-md mx-auto">
-                Обещаю тёплую атмосферу, улыбки и полное отсутствие скуки.
-            </p>
-
-            <!-- Контейнер для кнопок -->
-            <div id="buttons-arena" class="mt-10 flex flex-wrap items-center justify-center gap-4 w-full min-h-[90px] relative">
-                <button onclick="acceptInvitation()" class="z-20 px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E58FA5] text-white font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer">
-                    Да, с удовольствием! 💖
-                </button>
-
-                <button id="runaway-btn" onmouseover="moveRunawayButton()" onclick="moveRunawayButton()" ontouchstart="moveRunawayButton(event)" class="z-20 px-6 py-3.5 rounded-full bg-white/90 border border-roseSoft text-inkLight font-medium text-sm sm:text-base shadow-sm transition-all duration-200 cursor-pointer">
-                    Я подумаю... 🙈
-                </button>
-            </div>
-        </div>
-
-        <!-- ФИНАЛЬНЫЙ БИЛЕТ НА СВИДАНИЕ (Появляется после нажатия "Да") -->
-        <div id="date-pass-container" class="hidden animate-fade-up">
-            <div id="date-ticket-printable" class="glass-card bg-white/95 rounded-[2.5rem] p-6 sm:p-10 border-2 border-roseSoft shadow-2xl max-w-2xl mx-auto relative overflow-hidden">
-                <!-- Декоративные вырезы по бокам билета -->
-                <div class="hidden sm:block absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-blush border-r border-roseSoft -translate-y-1/2"></div>
-                <div class="hidden sm:block absolute top-1/2 -right-4 w-8 h-8 rounded-full bg-blush border-l border-roseSoft -translate-y-1/2"></div>
-
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-6 border-b-2 border-dashed border-roseSoft/70">
-                    <div>
-                        <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Official Date Pass • VIP</span>
-                        <h3 class="font-serif text-3xl sm:text-4xl font-bold text-ink mt-1">Билет на свидание</h3>
-                    </div>
-                    <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blush text-roseDeep text-xs font-semibold self-start sm:self-center">
-                        <span>Подтверждено</span>
-                        <span>✨</span>
-                    </div>
-                </div>
-
-                <!-- Детали билета -->
-                <div class="py-6 space-y-4 text-sm sm:text-base">
-                    <div class="grid grid-cols-2 gap-4 bg-cream/90 p-4 rounded-2xl border border-roseSoft/40">
-                        <div>
-                            <span class="text-xs text-inkLight block">Для кого</span>
-                            <span id="pass-recipient" class="font-serif text-xl font-bold text-ink">Алиса</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-inkLight block">От кого</span>
-                            <span id="pass-sender" class="font-serif text-xl font-bold text-ink">Артём</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-inkLight block">Когда</span>
-                            <span id="pass-datetime" class="font-semibold text-roseDeep">22 ноября в 19:00</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-inkLight block">Дресс-код</span>
-                            <span class="font-medium text-ink">Улыбка и комфорт ✨</span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Выбранный формат:</span>
-                        <p id="pass-scenarios" class="text-ink font-medium bg-blush/40 px-4 py-2.5 rounded-xl">Уютный вечер в кофейне и прогулка под фонарями</p>
-                    </div>
-
-                    <div>
-                        <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Вкусняшки и вайб:</span>
-                        <p id="pass-menu" class="text-ink text-sm bg-lavender/40 px-4 py-2.5 rounded-xl">Капучино, Тёплый круассан, Много смеха</p>
-                    </div>
-
-                    <div id="pass-coupons-wrapper">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Активированные купоны:</span>
-                        <p id="pass-coupons" class="text-ink text-sm bg-peach/50 px-4 py-2.5 rounded-xl">Все купоны активированы!</p>
-                    </div>
-                </div>
-
-                <!-- Кнопки действий -->
-                <div class="pt-4 border-t border-roseSoft/40 flex flex-col sm:flex-row gap-3">
-                    <button onclick="copyResponseMessage()" class="flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
-                        </svg>
-                        <span>Скопировать ответ для отправки</span>
-                    </button>
-
-                    <button onclick="window.print()" class="py-3.5 px-5 rounded-2xl bg-blush/80 text-ink font-medium text-sm hover:bg-roseSoft/50 transition-colors flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                        <span>Сохранить / Печать</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section id="final-section" class="relative py-20 sm:py-24 px-4 sm:px-6 max-w-4xl mx-auto z-10">
-        
-        <!-- Карточка с вопросом -->
-        <div id="question-box" class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-14 text-center relative overflow-hidden min-h-[380px] flex flex-col items-center justify-center border-2 border-white">
+        <div id="question-box" class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-14 text-center relative overflow-hidden min-h-[360px] flex flex-col items-center justify-center border-2 border-white">
             <div class="w-16 h-16 rounded-full bg-blush flex items-center justify-center text-3xl mb-5 animate-bounce">
                 💌
             </div>
@@ -657,22 +574,20 @@
                 Обещаю тёплую атмосферу, улыбки и полное отсутствие скуки.
             </p>
 
-            <!-- Контейнер для кнопок -->
             <div id="buttons-arena" class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full min-h-[110px] relative">
-                <button id="accept-btn" onclick="acceptInvitation()" class="w-full sm:w-auto z-20 px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E58FA5] text-white font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer">
+                <button id="accept-btn" type="button" onclick="acceptInvitation()" class="w-full sm:w-auto z-20 px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E58FA5] text-white font-semibold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer">
                     Да, я согласна! 💖
                 </button>
 
-                <button id="runaway-btn" onmouseover="moveRunawayButton()" onclick="moveRunawayButton()" ontouchstart="moveRunawayButton(event)" class="w-full sm:w-auto z-20 px-6 py-3.5 rounded-full bg-white/90 border border-roseSoft text-inkLight font-medium text-sm sm:text-base shadow-sm transition-all duration-200 cursor-pointer">
+                <button id="runaway-btn" type="button" onmouseover="moveRunawayButton()" onclick="moveRunawayButton()" ontouchstart="moveRunawayButton(event)" class="w-full sm:w-auto z-20 px-6 py-3.5 rounded-full bg-white border border-roseSoft text-inkLight font-medium text-sm sm:text-base shadow-sm transition-all duration-200 cursor-pointer">
                     Я подумаю... 🙈
                 </button>
             </div>
         </div>
 
-        <!-- ФИНАЛЬНЫЙ БИЛЕТ НА СВИДАНИЕ (Появляется после нажатия "Да") -->
+        <!-- ФИНАЛЬНЫЙ БИЛЕТ НА СВИДАНИЕ -->
         <div id="date-pass-container" class="hidden animate-fade-up">
             <div id="date-ticket-printable" class="glass-card bg-white/95 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10 border-2 border-roseSoft shadow-2xl max-w-2xl mx-auto relative overflow-hidden">
-                <!-- Декоративные вырезы по бокам билета -->
                 <div class="hidden sm:block absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-blush border-r border-roseSoft -translate-y-1/2"></div>
                 <div class="hidden sm:block absolute top-1/2 -right-4 w-8 h-8 rounded-full bg-blush border-l border-roseSoft -translate-y-1/2"></div>
 
@@ -681,7 +596,7 @@
                         <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Official Date Pass • VIP</span>
                         <h3 class="font-serif text-3xl sm:text-4xl font-bold text-ink mt-1">Золотой билет на свидание</h3>
                     </div>
-                    <div id="tg-delivery-badge" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blush text-roseDeep text-xs font-semibold self-start sm:self-center">
+                    <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blush text-roseDeep text-xs font-semibold self-start sm:self-center">
                         <span>Подтверждено</span>
                         <span>✨</span>
                     </div>
@@ -700,7 +615,7 @@
                         </div>
                         <div>
                             <span class="text-xs text-inkLight block">Когда</span>
-                            <span id="pass-datetime" class="font-semibold text-roseDeep">22 ноября в 19:00</span>
+                            <span id="pass-datetime" class="font-semibold text-roseDeep">Скоро</span>
                         </div>
                         <div>
                             <span class="text-xs text-inkLight block">Дресс-код</span>
@@ -718,14 +633,14 @@
                         <p id="pass-menu" class="text-ink text-sm bg-lavender/40 px-4 py-2.5 rounded-xl">Капучино, Тёплый круассан, Много смеха</p>
                     </div>
 
-                    <div id="pass-coupons-wrapper">
+                    <div>
                         <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Активированные купоны:</span>
                         <p id="pass-coupons" class="text-ink text-sm bg-peach/50 px-4 py-2.5 rounded-xl">Все купоны активированы!</p>
                     </div>
                 </div>
 
                 <!-- Статус прямой отправки в Telegram Bot -->
-                <div id="tg-bot-status-box" class="hidden mb-4 p-3.5 rounded-2xl bg-sage/70 border border-roseSoft/40 text-xs sm:text-sm text-ink flex items-center gap-2.5">
+                <div id="tg-bot-status-box" class="hidden mb-4 p-3.5 rounded-2xl bg-sage/80 border border-roseSoft/40 text-xs sm:text-sm text-ink flex items-center gap-2.5">
                     <span id="tg-bot-status-icon">⏳</span>
                     <span id="tg-bot-status-text">Отправляем ответ в Telegram...</span>
                 </div>
@@ -733,28 +648,21 @@
                 <!-- Кнопки действий -->
                 <div class="pt-4 border-t border-roseSoft/40 flex flex-col sm:flex-row gap-3">
                     <a id="tg-direct-link-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" class="flex-1 py-3.5 px-5 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                        <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
                         <span>Отправить ответ в Telegram</span>
                     </a>
 
-                    <button onclick="copyResponseMessage()" class="py-3.5 px-5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
-                        </svg>
+                    <button type="button" onclick="copyResponseMessage()" class="py-3.5 px-5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
                         <span>Скопировать ответ</span>
                     </button>
 
-                    <button onclick="window.print()" class="py-3.5 px-4 rounded-2xl bg-blush/80 text-ink font-medium text-sm hover:bg-roseSoft/50 transition-colors flex items-center justify-center gap-2 cursor-pointer" title="Сохранить или распечатать">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
-                        <span class="sm:hidden">Печать / PDF</span>
+                    <button type="button" onclick="window.print()" class="py-3.5 px-4 rounded-2xl bg-blush/80 text-ink font-medium text-sm hover:bg-roseSoft/50 transition-colors flex items-center justify-center gap-2 cursor-pointer" title="Сохранить или распечатать">
+                        <span>Печать / PDF</span>
                     </button>
                 </div>
             </div>
         </div>
     </section>
-
 
     <footer class="relative z-10 text-center pb-10 pt-4 text-xs text-inkLight/80">
         Создано с особой нежностью специально для тебя ✨
@@ -764,10 +672,9 @@
          JAVASCRIPT ЛОГИКА
          ========================================================= -->
     <script>
-        // --- СОСТОЯНИЕ ПРИЛОЖЕНИЯ ---
-        const STORAGE_KEY = 'pastel_date_invite_v2';
+        const STORAGE_KEY = 'pastel_date_invite_v3';
         const state = {
-            gender: 'her', // 'her' (девушке) или 'him' (парню)
+            gender: 'her',
             recipientName: 'Алиса',
             senderName: 'Артём',
             dateStr: '',
@@ -811,14 +718,13 @@
             'А если с вкусняшками? 🍰',
             'Ну пожалуйста... 🌸',
             'Ой, кнопка сломалась! 🙈',
-            'Попробуй зелёную... ой, розовую! 💖',
+            'Попробуй розовую кнопку! 💖',
             'Не убежишь от счастья ✨',
             'Я всё равно буду ждать 💕'
         ];
 
-        // --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ---
+        // --- ИНИЦИАЛИЗАЦИЯ ---
         window.addEventListener('DOMContentLoaded', () => {
-            // Устанавливаем дату по умолчанию (через 3 дня от текущей)
             const defaultDate = new Date();
             defaultDate.setDate(defaultDate.getDate() + 3);
             const yyyy = defaultDate.getFullYear();
@@ -826,10 +732,8 @@
             const dd = String(defaultDate.getDate()).padStart(2, '0');
             state.dateStr = `${yyyy}-${mm}-${dd}`;
 
-            // Загружаем сохранённые настройки из localStorage и URL-параметров
             loadSettingsFromStorageAndURL();
 
-            // Заполняем поля формы
             document.getElementById('input-recipient-name').value = state.recipientName;
             document.getElementById('input-sender-name').value = state.senderName;
             document.getElementById('input-date').value = state.dateStr;
@@ -847,10 +751,52 @@
             initPWA();
             startCountdown();
             initPetalsCanvas();
-            initParallax();
         });
 
-        // --- PWA: ДИНАМИЧЕСКАЯ ИКОНКА, MANIFEST, SERVICE WORKER И КНОПКА УСТАНОВКИ ---
+        // --- УВЕДОМЛЕНИЯ (TOAST) ---
+        let toastTimeout = null;
+        function showToast(text, emoji = '💖') {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-text').textContent = text;
+            document.getElementById('toast-emoji').textContent = emoji;
+
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 3200);
+        }
+
+        // --- КОНФЕТТИ ---
+        function launchCelebrationConfetti() {
+            if (typeof confetti !== 'function') return;
+            const colors = ['#D97B93', '#F4C2CC', '#EDE7F6', '#FDE8DF', '#FFD1DC'];
+            confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors });
+            setTimeout(() => {
+                confetti({ particleCount: 55, angle: 60, spread: 55, origin: { x: 0 }, colors });
+                confetti({ particleCount: 55, angle: 120, spread: 55, origin: { x: 1 }, colors });
+            }, 300);
+        }
+
+        // --- ПАНЕЛЬ НАСТРОЕК (CUSTOMIZER DRAWER) ---
+        let isDrawerOpen = false;
+        function toggleCustomizer() {
+            isDrawerOpen = !isDrawerOpen;
+            const drawer = document.getElementById('customizer-drawer');
+            const overlay = document.getElementById('customizer-overlay');
+
+            if (isDrawerOpen) {
+                overlay.classList.remove('hidden');
+                requestAnimationFrame(() => overlay.classList.remove('opacity-0'));
+                drawer.classList.remove('translate-x-full');
+            } else {
+                overlay.classList.add('opacity-0');
+                drawer.classList.add('translate-x-full');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- PWA ---
         let deferredInstallPrompt = null;
 
         function generateAppIconDataUrl(size) {
@@ -859,7 +805,6 @@
             canvas.height = size;
             const ctx = canvas.getContext('2d');
 
-            // Нежный пастельный градиент фона
             const grad = ctx.createLinearGradient(0, 0, size, size);
             grad.addColorStop(0, '#FCE7EB');
             grad.addColorStop(0.5, '#F8D3DC');
@@ -867,13 +812,11 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, size, size);
 
-            // Мягкий белый круг в центре
             ctx.fillStyle = 'rgba(255, 253, 249, 0.92)';
             ctx.beginPath();
             ctx.arc(size / 2, size / 2, size * 0.36, 0, Math.PI * 2);
             ctx.fill();
 
-            // Рисуем сердце цвета пыльной розы
             const cx = size / 2;
             const cy = size * 0.48;
             const s = size * 0.22;
@@ -896,7 +839,6 @@
                 document.getElementById('dynamic-apple-icon').href = appleIcon;
                 document.getElementById('dynamic-favicon').href = icon192;
 
-                // Формируем start_url с текущими персональными параметрами
                 const appUrl = new URL(window.location.href.split('?')[0]);
                 appUrl.searchParams.set('to', state.recipientName);
                 appUrl.searchParams.set('from', state.senderName);
@@ -938,23 +880,6 @@
         function initPWA() {
             updateDynamicManifest();
 
-            // Регистрация лёгкого inline Service Worker для поддержки установки PWA в Chrome/Android
-            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-                try {
-                    const swCode = `
-                        self.addEventListener('install', (e) => self.skipWaiting());
-                        self.addEventListener('activate', (e) => self.clients.claim());
-                        self.addEventListener('fetch', (e) => {
-                            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                        });
-                    `;
-                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(swBlob);
-                    navigator.serviceWorker.register(swUrl).catch(() => {});
-                } catch (e) {}
-            }
-
-            // Проверяем, запущено ли приложение уже с рабочего стола (standalone)
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
             const installBtn = document.getElementById('pwa-install-btn');
 
@@ -986,13 +911,10 @@
             if (deferredInstallPrompt) {
                 deferredInstallPrompt.prompt();
                 const { outcome } = await deferredInstallPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredInstallPrompt = null;
-                }
+                if (outcome === 'accepted') deferredInstallPrompt = null;
                 return;
             }
 
-            // Если это iOS Safari или браузер без авто-окна установки — показываем наглядную инструкцию
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             document.getElementById('pwa-ios-steps').classList.toggle('hidden', !isIOS);
             document.getElementById('pwa-desktop-steps').classList.toggle('hidden', isIOS);
@@ -1003,6 +925,7 @@
             document.getElementById('pwa-guide-modal').classList.add('hidden');
         }
 
+        // --- ХРАНИЛИЩЕ И URL ---
         function loadSettingsFromStorageAndURL() {
             try {
                 const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -1016,7 +939,6 @@
                 if (saved.tgChatId) state.tgChatId = saved.tgChatId;
             } catch (e) {}
 
-            // Приоритет у URL query-параметров (?to=...&from=...&tg=...&date=...&time=...&gender=...)
             const params = new URLSearchParams(window.location.search);
             if (params.get('to')) state.recipientName = params.get('to');
             if (params.get('from')) state.senderName = params.get('from');
@@ -1057,37 +979,23 @@
                 url.searchParams.set('bot', state.tgBotToken);
                 url.searchParams.set('chat', state.tgChatId);
             }
-
             copyTextToClipboard(url.toString(), 'Персональная ссылка скопирована! Отправь её приглашаемому 🔗');
         }
+
+        // --- ПЕРСОНАЛИЗАЦИЯ ---
         function setRecipientGender(gender, shouldUpdate = true) {
             state.gender = gender;
             const herBtn = document.getElementById('gender-her-btn');
             const himBtn = document.getElementById('gender-him-btn');
 
             if (gender === 'her') {
-                herBtn.className = 'py-3 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all';
-                himBtn.className = 'py-3 px-4 rounded-2xl border-2 border-transparent bg-white/80 text-inkLight font-medium text-sm hover:border-roseSoft transition-all';
+                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer';
+                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
             } else {
-                himBtn.className = 'py-3 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all';
-                herBtn.className = 'py-3 px-4 rounded-2xl border-2 border-transparent bg-white/80 text-inkLight font-medium text-sm hover:border-roseSoft transition-all';
+                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer';
+                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
             }
             if (shouldUpdate) updatePersonalization();
-        }
-
-        function setRecipientGender(gender) {
-            state.gender = gender;
-            const herBtn = document.getElementById('gender-her-btn');
-            const himBtn = document.getElementById('gender-him-btn');
-
-            if (gender === 'her') {
-                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all';
-                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white/80 text-inkLight font-medium text-sm hover:border-roseSoft transition-all';
-            } else {
-                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all';
-                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white/80 text-inkLight font-medium text-sm hover:border-roseSoft transition-all';
-            }
-            updatePersonalization();
         }
 
         function formatRussianDate(dateStr) {
@@ -1110,25 +1018,20 @@
             state.tgChatId = document.getElementById('input-tg-chatid').value.trim();
 
             saveSettingsToStorage();
-            if (typeof updateDynamicManifest === 'function') {
-                updateDynamicManifest();
-            }
+            updateDynamicManifest();
 
             const isHer = state.gender === 'her';
             const formattedDate = formatRussianDate(state.dateStr);
 
-            // Обновление имён в интерфейсе
             document.getElementById('hero-name').textContent = state.recipientName;
             document.getElementById('final-name').textContent = state.recipientName;
             document.getElementById('hero-date-badge').textContent = `${formattedDate} • ${state.timeStr}`;
             document.getElementById('countdown-date-display').textContent = `${formattedDate} в ${state.timeStr}`;
 
-            // Обновление кнопки согласия в зависимости от пола
             document.getElementById('accept-btn').textContent = isHer 
                 ? 'Да, я согласна! 💖' 
                 : 'Да, я согласен! 💖';
 
-            // Обновление письма с учетом пола (окончания)
             document.getElementById('letter-greeting').textContent = isHer 
                 ? `Дорогая ${state.recipientName},` 
                 : `Дорогой ${state.recipientName},`;
@@ -1137,9 +1040,7 @@
                 ? `Твой ${state.senderName}` 
                 : `Твоя ${state.senderName}`;
 
-            // Обновление глагола в письме (решил / решила, сам / сама)
-            const letterBody = document.getElementById('letter-body');
-            letterBody.innerHTML = `
+            document.getElementById('letter-body').innerHTML = `
                 <p>
                     Иногда среди бесконечных дел и сообщений хочется просто нажать на паузу, выдохнуть и провести время с человеком, рядом с которым легко и спокойно.
                 </p>
@@ -1154,17 +1055,14 @@
             updateTicketSummary();
         }
 
-        // --- HERO BUTTON & WEB AUDIO API МЕЛОДИЯ ---
+        // --- МЕЛОДИЯ ---
         let audioCtx = null;
         let isMusicPlaying = false;
         let melodyInterval = null;
 
         function openInvitationHero() {
-            const envelopeSection = document.getElementById('envelope-section');
-            envelopeSection.scrollIntoView({ behavior: 'smooth' });
-            if (!isMusicPlaying) {
-                toggleMusic();
-            }
+            document.getElementById('envelope-section').scrollIntoView({ behavior: 'smooth' });
+            if (!isMusicPlaying) toggleMusic();
         }
 
         function toggleMusic() {
@@ -1187,19 +1085,14 @@
         }
 
         function startGentlePiano() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
 
-            // Нежная романтичная последовательность нот (Fmaj7 -> Em7 -> Dm7 -> Cmaj7)
             const chords = [
-                [349.23, 440.00, 523.25, 659.25], // Fmaj7
-                [329.63, 392.00, 493.88, 587.33], // Em7
-                [293.66, 349.23, 440.00, 523.25], // Dm7
-                [261.63, 329.63, 392.00, 493.88]  // Cmaj7
+                [349.23, 440.00, 523.25, 659.25],
+                [329.63, 392.00, 493.88, 587.33],
+                [293.66, 349.23, 440.00, 523.25],
+                [261.63, 329.63, 392.00, 493.88]
             ];
             let step = 0;
 
@@ -1211,7 +1104,6 @@
 
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
@@ -1221,7 +1113,6 @@
 
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-
                 osc.start();
                 osc.stop(audioCtx.currentTime + 1.85);
             };
@@ -1230,7 +1121,7 @@
             melodyInterval = setInterval(playNote, 650);
         }
 
-        // --- ИНТЕРАКТИВНЫЙ КОНВЕРТ ---
+        // --- КОНВЕРТ ---
         function toggleEnvelope() {
             state.envelopeOpen = !state.envelopeOpen;
             const letter = document.getElementById('letter-content');
@@ -1238,20 +1129,19 @@
 
             if (state.envelopeOpen) {
                 letter.classList.remove('hidden');
-                hint.textContent = 'Конверт открыт • Нажми, чтобы свернуть';
+                hint.textContent = 'Конверт открыт • Нажми, чтобы закрыть';
             } else {
                 letter.classList.add('hidden');
                 hint.textContent = 'Конверт запечатан • Нажми, чтобы прочитать';
             }
         }
 
-        // --- FLIP CARDS («ПОЧЕМУ ИМЕННО ТЫ?») ---
+        // --- FLIP CARDS ---
         function renderReasons() {
             const grid = document.getElementById('reasons-grid');
-            grid.innerHTML = state.reasons.map((item, idx) => `
+            grid.innerHTML = state.reasons.map(item => `
                 <div onclick="this.classList.toggle('flipped')" class="flip-card perspective-1000 h-52 cursor-pointer group">
                     <div class="flip-inner">
-                        <!-- Лицевая сторона -->
                         <div class="flip-front glass-card p-6 flex flex-col items-center justify-center text-center border border-white group-hover:border-roseSoft transition-colors">
                             <div class="w-12 h-12 rounded-2xl bg-blush/80 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform">
                                 ${item.icon}
@@ -1259,7 +1149,6 @@
                             <h3 class="font-serif text-2xl font-semibold text-ink">${item.title}</h3>
                             <span class="text-xs text-roseDeep mt-2 opacity-80">Нажми, чтобы открыть →</span>
                         </div>
-                        <!-- Обратная сторона -->
                         <div class="flip-back bg-gradient-to-br from-roseDeep to-[#E38EA3] text-white p-6 flex flex-col items-center justify-center text-center shadow-lg">
                             <span class="text-2xl mb-2">${item.icon}</span>
                             <p class="text-sm sm:text-base leading-relaxed font-normal">${item.text}</p>
@@ -1273,7 +1162,6 @@
             const input = document.getElementById('new-reason-input');
             const val = input.value.trim();
             if (!val) return;
-
             state.reasons.push({
                 icon: '💖',
                 title: 'Особая причина #' + (state.reasons.length + 1),
@@ -1284,11 +1172,11 @@
             showToast('Новая причина добавлена!', '✨');
         }
 
-        // --- КОНСТРУКТОР СЦЕНАРИЕВ СВИДАНИЯ ---
+        // --- СЦЕНАРИИ СВИДАНИЯ ---
         function renderScenarios() {
             const grid = document.getElementById('scenarios-grid');
             grid.innerHTML = state.scenarios.map(sc => `
-                <div onclick="toggleScenario('${sc.id}')" class="glass-card rounded-3xl p-6 cursor-pointer transition-all duration-300 border-2 ${sc.selected ? 'border-roseDeep bg-white/90 shadow-md scale-[1.01]' : 'border-transparent hover:border-roseSoft/70'}">
+                <div onclick="toggleScenario('${sc.id}')" class="glass-card rounded-3xl p-5 sm:p-6 cursor-pointer transition-all duration-300 border-2 ${sc.selected ? 'border-roseDeep bg-white shadow-md' : 'border-transparent hover:border-roseSoft/70'}">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-2xl ${sc.selected ? 'bg-roseDeep text-white' : 'bg-blush text-ink'} flex items-center justify-center text-2xl shrink-0 transition-colors">
@@ -1320,7 +1208,6 @@
             const input = document.getElementById('input-custom-scenario');
             const val = input.value.trim();
             if (!val) return;
-
             state.scenarios.push({
                 id: 'custom-' + Date.now(),
                 emoji: '🌟',
@@ -1338,7 +1225,7 @@
             updateTicketSummary();
         }
 
-        // --- МЕНЮ НАСТРОЕНИЯ И УГОЩЕНИЙ ---
+        // --- МЕНЮ ---
         function renderMenu() {
             renderChips('drinks-list', state.drinks, state.selectedDrinks, 'drinks');
             renderChips('treats-list', state.treats, state.selectedTreats, 'treats');
@@ -1350,7 +1237,7 @@
             container.innerHTML = items.map(item => {
                 const isSelected = selectedArray.includes(item);
                 return `
-                    <button type="button" onclick="toggleChip('${category}', '${item}')" class="px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all cursor-pointer ${isSelected ? 'bg-roseDeep text-white shadow-sm scale-105' : 'bg-white/90 text-ink hover:bg-blush/70 border border-roseSoft/50'}">
+                    <button type="button" onclick="toggleChip('${category}', '${item}')" class="px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium transition-all cursor-pointer ${isSelected ? 'bg-roseDeep text-white shadow-sm' : 'bg-white text-ink hover:bg-blush/70 border border-roseSoft/50'}">
                         ${item}
                     </button>
                 `;
@@ -1358,33 +1245,23 @@
         }
 
         function toggleChip(category, item) {
-            const map = {
-                drinks: state.selectedDrinks,
-                treats: state.selectedTreats,
-                vibes: state.selectedVibes
-            };
+            const map = { drinks: state.selectedDrinks, treats: state.selectedTreats, vibes: state.selectedVibes };
             const arr = map[category];
             const idx = arr.indexOf(item);
-            if (idx > -1) {
-                arr.splice(idx, 1);
-            } else {
-                arr.push(item);
-            }
+            if (idx > -1) arr.splice(idx, 1);
+            else arr.push(item);
             renderMenu();
             updateTicketSummary();
         }
 
-        // --- ТАЙМЕР ОБРАТНОГО ОТСЧЕТА ---
+        // --- ТАЙМЕР ---
         function startCountdown() {
             const update = () => {
                 const targetStr = `${state.dateStr}T${state.timeStr}:00`;
                 const targetDate = new Date(targetStr);
                 const now = new Date();
                 let diff = targetDate - now;
-
-                if (isNaN(diff) || diff < 0) {
-                    diff = 0;
-                }
+                if (isNaN(diff) || diff < 0) diff = 0;
 
                 const days = Math.floor(diff / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
@@ -1396,12 +1273,11 @@
                 document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
                 document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
             };
-
             update();
             setInterval(update, 1000);
         }
 
-        // --- КУПОНЫ НА СВИДАНИЕ ---
+        // --- КУПОНЫ ---
         function renderCoupons() {
             const grid = document.getElementById('coupons-grid');
             grid.innerHTML = state.coupons.map(c => `
@@ -1428,18 +1304,15 @@
             if (coupon) {
                 coupon.claimed = !coupon.claimed;
                 renderCoupons();
-                if (coupon.claimed) {
-                    showToast(`Купон «${coupon.title}» добавлен в билет!`, coupon.emoji);
-                }
+                if (coupon.claimed) showToast(`Купон «${coupon.title}» добавлен в билет!`, coupon.emoji);
             }
         }
 
-        // --- УБЕГАЮЩАЯ КНОПКА И ПРИНЯТИЕ ПРИГЛАШЕНИЯ ---
+        // --- ФИНАЛ И ОТПРАВКА В TELEGRAM ---
         function moveRunawayButton(e) {
             if (e) e.preventDefault();
             const btn = document.getElementById('runaway-btn');
             const arena = document.getElementById('question-box');
-            
             const arenaRect = arena.getBoundingClientRect();
             const btnRect = btn.getBoundingClientRect();
 
@@ -1455,10 +1328,7 @@
         }
 
         function acceptInvitation() {
-            // Запускаем конфетти
             launchCelebrationConfetti();
-
-            // Скрываем вопрос, показываем билет
             document.getElementById('question-box').classList.add('hidden');
             const passContainer = document.getElementById('date-pass-container');
             passContainer.classList.remove('hidden');
@@ -1466,7 +1336,6 @@
             updateTicketSummary();
             passContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            // Если настроены Telegram Bot Token и Chat ID — отправляем мгновенно в фоне
             if (state.tgBotToken && state.tgChatId) {
                 sendToTelegramBot();
             }
@@ -1505,10 +1374,7 @@
                 const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: state.tgChatId,
-                        text: text
-                    })
+                    body: JSON.stringify({ chat_id: state.tgChatId, text })
                 });
                 const data = await res.json();
                 if (data.ok) {
@@ -1520,7 +1386,7 @@
                 }
             } catch (err) {
                 statusIcon.textContent = '⚠️';
-                statusText.textContent = 'Не удалось отправить через бота автоматически — нажми кнопку «Отправить ответ в Telegram» ниже.';
+                statusText.textContent = 'Нажми синюю кнопку «Отправить ответ в Telegram» ниже, чтобы отправить сообщение.';
             }
         }
 
@@ -1545,7 +1411,6 @@
                 ? claimedCoupons.join(', ') 
                 : 'Все купоны действуют по умолчанию 💖';
 
-            // Обновляем ссылку для прямой отправки в Telegram (t.me/username?text=... или t.me/share/url)
             const tgBtn = document.getElementById('tg-direct-link-btn');
             const encodedText = encodeURIComponent(buildFormattedResponseText());
             if (state.tgUsername) {
@@ -1555,7 +1420,6 @@
             }
         }
 
-        // --- КОПИРОВАНИЕ В БУФЕР ОБМЕНА (iFrame-safe) ---
         function copyTextToClipboard(text, successMsg) {
             const textArea = document.createElement('textarea');
             textArea.value = text;
@@ -1579,71 +1443,34 @@
             );
         }
 
-        // --- КОПИРОВАНИЕ ОТВЕТА В БУФЕР ОБМЕНА (iFrame-safe) ---
-        function copyResponseMessage() {
-            const scenarios = document.getElementById('pass-scenarios').textContent;
-            const menu = document.getElementById('pass-menu').textContent;
-            const dateTime = document.getElementById('pass-datetime').textContent;
-
-            const message = `💖 Я согласна пойти с тобой на свидание! (${state.recipientName} → ${state.senderName})\n\n` +
-                            `📅 Когда: ${dateTime}\n` +
-                            `✨ Формат: ${scenarios}\n` +
-                            `☕ Вкусняшки и вайб: ${menu}\n\n` +
-                            `До встречи! 🌸`;
-
-            const textArea = document.createElement('textarea');
-            textArea.value = message;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-9999px';
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                showToast('Текст ответа скопирован! Отправь его в мессенджер 💌', '✅');
-            } catch (err) {
-                showToast('Не удалось скопировать автоматически', '⚠️');
-            }
-            document.body.removeChild(textArea);
-        }
-
-        // --- ПАРАЛЛАКС ПРИ СКРОЛЛЕ ---
-        function initParallax() {
-            const els = document.querySelectorAll('.parallax-el');
-            window.addEventListener('scroll', () => {
-                const scrollY = window.scrollY;
-                els.forEach(el => {
-                    const speed = parseFloat(el.getAttribute('data-parallax')) || 0.1;
-                    el.style.transform = `translateY(${scrollY * speed}px)`;
-                });
-            }, { passive: true });
-        }
-
-        // --- АНИМАЦИЯ ЛЕТАЮЩИХ ЛЕПЕСТКОВ И СЕРДЕЧЕК НА CANVAS ---
+        // --- АНИМАЦИЯ ЛЕПЕСТКОВ БЕЗ ДЁРГАНЬЯ НА МОБИЛЬНЫХ ---
         function initPetalsCanvas() {
             const canvas = document.getElementById('petals-canvas');
             const ctx = canvas.getContext('2d');
-            let width, height;
-            let particles = [];
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
 
-            function resize() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
+            window.addEventListener('resize', () => {
+                // Игнорируем мелкие скачки высоты от скрытия адресной строки на мобильных
+                if (Math.abs(window.innerWidth - width) > 20) {
+                    width = canvas.width = window.innerWidth;
+                    height = canvas.height = window.innerHeight;
+                }
+            });
 
-            const colors = ['rgba(244, 194, 204, 0.55)', 'rgba(237, 231, 246, 0.65)', 'rgba(253, 232, 223, 0.65)', 'rgba(217, 123, 147, 0.28)'];
+            const colors = ['rgba(244, 194, 204, 0.5)', 'rgba(237, 231, 246, 0.6)', 'rgba(253, 232, 223, 0.6)', 'rgba(217, 123, 147, 0.25)'];
+            const particles = [];
 
             class Petal {
-                constructor() {
-                    this.reset(true);
-                }
+                constructor() { this.reset(true); }
                 reset(initial = false) {
                     this.x = Math.random() * width;
                     this.y = initial ? Math.random() * height : -20;
-                    this.size = Math.random() * 8 + 5;
-                    this.speedY = Math.random() * 0.8 + 0.4;
-                    this.speedX = Math.random() * 0.6 - 0.3;
+                    this.size = Math.random() * 7 + 5;
+                    this.speedY = Math.random() * 0.7 + 0.35;
+                    this.speedX = Math.random() * 0.5 - 0.25;
                     this.angle = Math.random() * Math.PI * 2;
                     this.spin = (Math.random() - 0.5) * 0.02;
                     this.color = colors[Math.floor(Math.random() * colors.length)];
@@ -1651,18 +1478,15 @@
                 }
                 update() {
                     this.y += this.speedY;
-                    this.x += this.speedX + Math.sin(this.angle) * 0.3;
+                    this.x += this.speedX + Math.sin(this.angle) * 0.25;
                     this.angle += this.spin;
-                    if (this.y > height + 20) {
-                        this.reset();
-                    }
+                    if (this.y > height + 20) this.reset();
                 }
                 draw() {
                     ctx.save();
                     ctx.translate(this.x, this.y);
                     ctx.rotate(this.angle);
                     ctx.fillStyle = this.color;
-
                     if (this.isHeart) {
                         const s = this.size * 0.6;
                         ctx.beginPath();
@@ -1673,7 +1497,6 @@
                         ctx.bezierCurveTo(s, 0, 0, 0, 0, s / 4);
                         ctx.fill();
                     } else {
-                        // Нежный лепесток
                         ctx.beginPath();
                         ctx.ellipse(0, 0, this.size, this.size * 0.55, 0, 0, Math.PI * 2);
                         ctx.fill();
@@ -1682,17 +1505,15 @@
                 }
             }
 
-            const count = window.innerWidth < 640 ? 18 : 32;
-            for (let i = 0; i < count; i++) {
-                particles.push(new Petal());
-            }
+            const count = width < 640 ? 14 : 26;
+            for (let i = 0; i < count; i++) particles.push(new Petal());
 
             function animate() {
                 ctx.clearRect(0, 0, width, height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
                 requestAnimationFrame(animate);
             }
             animate();
