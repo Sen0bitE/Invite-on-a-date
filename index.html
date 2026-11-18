@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Приглашение на свидание ✨</title>
+    <title>Особенное приглашение для тебя ✨</title>
 
-    <!-- Telegram Web App SDK (для работы внутри Telegram Mini App) -->
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <!-- PWA Meta Tags -->
@@ -74,25 +74,29 @@
             pointer-events: none;
             background-color: #FFFDF9;
             background-image: 
-                radial-gradient(at 15% 15%, rgba(252, 231, 235, 0.8) 0px, transparent 55%),
-                radial-gradient(at 85% 20%, rgba(237, 231, 246, 0.8) 0px, transparent 50%),
-                radial-gradient(at 75% 75%, rgba(253, 232, 223, 0.8) 0px, transparent 55%),
-                radial-gradient(at 20% 85%, rgba(232, 241, 236, 0.75) 0px, transparent 50%);
+                radial-gradient(at 15% 15%, rgba(252, 231, 235, 0.82) 0px, transparent 55%),
+                radial-gradient(at 85% 20%, rgba(237, 231, 246, 0.82) 0px, transparent 50%),
+                radial-gradient(at 75% 75%, rgba(253, 232, 223, 0.82) 0px, transparent 55%),
+                radial-gradient(at 20% 85%, rgba(232, 241, 236, 0.78) 0px, transparent 50%);
             transform: translateZ(0);
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.96);
             box-shadow: 0 10px 30px -8px rgba(186, 134, 150, 0.14);
         }
-        .fluid-h1 { font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: 1.08; }
-        .fluid-h2 { font-size: clamp(1.75rem, 4.5vw, 3rem); line-height: 1.15; }
+        .solid-modal {
+            background-color: #FFFDF9 !important;
+            box-shadow: 0 24px 60px rgba(74, 59, 66, 0.26);
+        }
+        .fluid-h1 { font-size: clamp(2.15rem, 6vw, 4.4rem); line-height: 1.08; }
+        .fluid-h2 { font-size: clamp(1.7rem, 4.4vw, 2.9rem); line-height: 1.15; }
         .perspective-1000 { perspective: 1000px; }
         .flip-inner {
             position: relative; width: 100%; height: 100%;
-            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-style: preserve-3d;
         }
         .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
@@ -111,17 +115,17 @@
 
     <!-- Верхняя панель -->
     <header class="sticky top-0 z-40 px-3 sm:px-6 pt-3 pb-2 pointer-events-none">
-        <div class="max-w-5xl mx-auto flex justify-between items-center gap-2">
+        <div class="max-w-6xl mx-auto flex justify-between items-center gap-2">
             <button id="music-toggle-btn" type="button" onclick="toggleMusic()" class="pointer-events-auto glass-card px-3.5 py-2 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white transition-all shadow-sm cursor-pointer">
                 <span class="w-6 h-6 rounded-full bg-blush flex items-center justify-center text-roseDeep">♪</span>
                 <span id="music-label">Мелодия: Выкл</span>
             </button>
 
             <div class="flex items-center gap-2 pointer-events-auto">
-                <span id="mode-badge" class="px-3.5 py-1.5 rounded-full bg-blush text-roseDeep text-xs font-semibold border border-roseSoft">
-                    Режим составления
-                </span>
-                <button id="pwa-install-btn" type="button" onclick="handleInstallClick()" class="hidden glass-card px-3.5 py-2 rounded-full items-center gap-1.5 text-xs font-medium text-roseDeep hover:bg-white transition-all shadow-sm border border-roseSoft cursor-pointer">
+                <button id="help-guide-btn" type="button" onclick="openBotGuideModal()" class="glass-card px-3.5 py-2 rounded-full flex items-center gap-1.5 text-xs font-semibold text-roseDeep hover:bg-white transition-all shadow-sm border border-roseSoft cursor-pointer">
+                    <span>❓ Как настроить Telegram</span>
+                </button>
+                <button id="pwa-install-btn" type="button" onclick="handleInstallClick()" class="hidden glass-card px-3.5 py-2 rounded-full items-center gap-1.5 text-xs font-medium text-ink hover:bg-white transition-all shadow-sm border border-roseSoft cursor-pointer">
                     <span>📲 На экран</span>
                 </button>
             </div>
@@ -137,20 +141,74 @@
     </div>
 
     <!-- =========================================================
+         МОДАЛЬНОЕ ОКНО: ИНСТРУКЦИЯ ПО BOT TOKEN И CHAT ID
+         ========================================================= -->
+    <div id="bot-guide-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5">
+        <div onclick="closeBotGuideModal()" class="absolute inset-0 bg-ink/55 backdrop-blur-sm"></div>
+        <div class="solid-modal relative z-10 rounded-[2rem] p-5 sm:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto border-2 border-roseSoft">
+            <div class="flex items-start justify-between gap-3 pb-4 border-b border-roseSoft/60">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Подробная инструкция</span>
+                    <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-0.5">Как узнать Bot Token и Chat ID</h3>
+                </div>
+                <button type="button" onclick="closeBotGuideModal()" class="w-9 h-9 rounded-full bg-blush flex items-center justify-center text-ink hover:bg-roseSoft transition-colors shrink-0 cursor-pointer">✕</button>
+            </div>
+
+            <div class="mt-5 space-y-4 text-xs sm:text-sm text-ink leading-relaxed">
+                <div class="p-4 rounded-2xl bg-[#FCE7EB]/55 border border-roseSoft">
+                    <div class="font-bold text-roseDeep mb-1">Шаг 1. Создайте своего бота и получите Bot Token</div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-ink/90">
+                        <li>Откройте в Telegram официального бота <strong>@BotFather</strong>.</li>
+                        <li>Отправьте ему команду <code class="px-1.5 py-0.5 rounded bg-white border border-roseSoft text-roseDeep font-mono">/newbot</code>.</li>
+                        <li>Придумайте любое имя (например: <em>Мои приглашения</em>) и уникальный логин, заканчивающийся на <code class="font-mono">bot</code> (например: <em>my_love_invite_bot</em>).</li>
+                        <li>В ответ @BotFather пришлёт длинный код — <strong>HTTP API Token</strong> (вида <code class="font-mono">7123456789:AAH...</code>). Скопируйте его.</li>
+                    </ol>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-[#EDE7F6]/60 border border-roseSoft">
+                    <div class="font-bold text-ink mb-1">Шаг 2. Узнайте свой Chat ID (куда бот пришлёт карточку)</div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-ink/90">
+                        <li>Найдите в поиске Telegram только что созданного вами бота и обязательно нажмите кнопку <strong>«Запустить» (/start)</strong> — иначе бот не сможет вам написать!</li>
+                        <li>Откройте в Telegram бота <strong>@userinfobot</strong> (или <strong>@getmyid_bot</strong>) и нажмите <strong>«Запустить»</strong>.</li>
+                        <li>Он сразу пришлёт ваш цифровой <strong>Id</strong> (например: <code class="font-mono">519283746</code>). Это и есть ваш <strong>Chat ID</strong>.</li>
+                    </ol>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-[#E8F1EC]/70 border border-roseSoft">
+                    <div class="font-bold text-ink mb-1">Шаг 3. Как отправить карточку девушке или парню</div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-ink/90">
+                        <li>Вставьте <strong>Bot Token</strong> и <strong>свой Chat ID</strong> в поля на этом сайте.</li>
+                        <li>Выберите все пункты для свидания и нажмите синюю кнопку <strong>«Отправить интерактивную карточку в Telegram»</strong>.</li>
+                        <li>Бот мгновенно пришлёт красивую интерактивную карточку <strong>вам в личку</strong> — просто перешлите это сообщение девушке или парню в ЛС!</li>
+                    </ol>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-cream border border-roseSoft/70 text-xs text-inkLight">
+                    💡 <strong>Для запуска прямо внутри Telegram (Mini App):</strong> в @BotFather отправьте <code class="font-mono">/newapp</code>, выберите своего бота и вставьте ссылку на этот сайт в поле <em>Web App URL</em>.
+                </div>
+            </div>
+
+            <button type="button" onclick="closeBotGuideModal()" class="mt-6 w-full py-3.5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-semibold text-sm shadow-md cursor-pointer">
+                Всё понятно, вернуться к настройке ✨
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================================
          БЛОК 1. ПАРАМЕТРЫ ПРИГЛАШЕНИЯ (ВИДИТ ТОЛЬКО ОТПРАВИТЕЛЬ)
          ========================================================= -->
-    <section id="creator-setup-section" class="relative pt-6 pb-8 px-4 sm:px-6 max-w-4xl mx-auto z-10">
-        <div class="glass-card rounded-[2rem] p-5 sm:p-8 border-2 border-roseSoft/70">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-roseSoft/50">
+    <section id="creator-setup-section" class="relative pt-5 pb-6 px-4 sm:px-6 max-w-5xl mx-auto z-10">
+        <div class="glass-card rounded-[2rem] p-5 sm:p-8 border-2 border-roseSoft/80">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-roseSoft/50">
                 <div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Шаг 1 • Твои настройки</span>
-                    <h1 class="font-serif text-2xl sm:text-4xl font-bold text-ink mt-1">Составь своё приглашение</h1>
+                    <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Шаг 1 • Настройка участников и даты</span>
+                    <h1 class="font-serif text-2xl sm:text-4xl font-bold text-ink mt-1">Конструктор идеального свидания</h1>
                 </div>
                 <div class="grid grid-cols-2 gap-2 shrink-0">
-                    <button type="button" id="gender-her-btn" onclick="setRecipientGender('her')" class="py-2 px-3.5 rounded-xl border-2 border-roseDeep bg-blush text-ink font-medium text-xs sm:text-sm cursor-pointer">
+                    <button type="button" id="gender-her-btn" onclick="setRecipientGender('her')" class="py-2.5 px-4 rounded-xl border-2 border-roseDeep bg-blush text-ink font-semibold text-xs sm:text-sm cursor-pointer">
                         Девушке 🌷
                     </button>
-                    <button type="button" id="gender-him-btn" onclick="setRecipientGender('him')" class="py-2 px-3.5 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-xs sm:text-sm cursor-pointer">
+                    <button type="button" id="gender-him-btn" onclick="setRecipientGender('him')" class="py-2.5 px-4 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-semibold text-xs sm:text-sm cursor-pointer">
                         Парню ✨
                     </button>
                 </div>
@@ -176,14 +234,14 @@
             </div>
 
             <div class="mt-4">
-                <label class="block text-xs font-semibold text-inkLight mb-1">Место встречи (необязательно)</label>
-                <input type="text" id="input-place" oninput="syncUI()" placeholder="Например: Кофейня у парка или заберу тебя от дома" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-sm">
+                <label class="block text-xs font-semibold text-inkLight mb-1">Место встречи или точка сбора</label>
+                <input type="text" id="input-place" oninput="syncUI()" placeholder="Например: Уютная кофейня в центре или заберу тебя от подъезда" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-sm">
             </div>
         </div>
     </section>
 
     <!-- =========================================================
-         БЛОК 2. ПРЕВЬЮ ОТКРЫТКИ И ПИСЬМА (ВИДЯТ ОБА)
+         БЛОК 2. ПРЕВЬЮ ОТКРЫТКИ И ПИСЬМА
          ========================================================= -->
     <section class="relative py-8 sm:py-12 px-4 sm:px-6 max-w-4xl mx-auto z-10 text-center">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-xs font-medium tracking-wide text-roseDeep uppercase mb-4">
@@ -196,20 +254,18 @@
             Для тебя, <span id="hero-name" class="italic text-roseDeep underline decoration-roseSoft decoration-2 underline-offset-8">Алиса</span>...
         </h2>
 
-        <!-- Письмо -->
         <div class="mt-8 max-w-2xl mx-auto text-left bg-[#FFFDFB] rounded-3xl p-6 sm:p-9 shadow-xl border border-roseSoft/70">
             <div class="flex justify-between items-center mb-4">
-                <span class="font-serif italic text-xl text-roseDeep font-semibold" id="letter-greeting">Дорогая Алиса,</span>
+                <span class="font-serif italic text-xl sm:text-2xl text-roseDeep font-semibold" id="letter-greeting">Дорогая Алиса,</span>
                 <span class="text-xs text-inkLight bg-blush px-3 py-1 rounded-full">С теплом 💌</span>
             </div>
             
-            <!-- В режиме создателя можно редактировать текст письма прямо здесь -->
             <div id="letter-editor-wrap">
-                <textarea id="input-letter-text" rows="4" oninput="syncUI()" class="w-full p-3 rounded-2xl bg-cream border border-roseSoft/70 text-sm sm:text-base text-ink leading-relaxed focus:outline-none focus:border-roseDeep">Иногда среди бесконечных дел хочется просто нажать на паузу и провести время с человеком, рядом с которым легко и тепло. Я не стал ждать особого повода в календаре и решил создать его сам. Пойдёшь со мной на свидание?</textarea>
+                <textarea id="input-letter-text" rows="4" oninput="syncUI()" class="w-full p-3.5 rounded-2xl bg-cream border border-roseSoft/70 text-sm sm:text-base text-ink leading-relaxed focus:outline-none focus:border-roseDeep"></textarea>
             </div>
             <p id="letter-readonly-text" class="hidden text-sm sm:text-base text-ink/90 leading-relaxed whitespace-pre-line"></p>
 
-            <div class="mt-5 pt-4 border-t border-roseSoft/40 flex items-center justify-between">
+            <div class="mt-5 pt-4 border-t border-roseSoft/40 flex flex-wrap items-center justify-between gap-2">
                 <span id="letter-place-display" class="text-xs text-inkLight">📍 Место уточним вместе</span>
                 <span class="font-serif italic text-xl font-semibold text-ink" id="letter-sender">Твой Артём</span>
             </div>
@@ -217,112 +273,171 @@
     </section>
 
     <!-- =========================================================
-         БЛОК 3. ЧТО ТЫ ПРЕДЛАГАЕШЬ (СЦЕНАРИЙ, НАПИТКИ, КУПОНЫ)
+         БЛОК 3. 3D-КАРТОЧКИ «ПОЧЕМУ ИМЕННО ТЫ?» (12 ШТУК + СВОИ)
          ========================================================= -->
-    <section class="relative py-8 sm:py-12 px-4 sm:px-6 max-w-5xl mx-auto z-10 space-y-10">
-        <!-- Формат вечера -->
-        <div>
-            <div class="text-center mb-6">
-                <span id="scenarios-step-badge" class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Шаг 2 • Выбери, что ты предлагаешь</span>
-                <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="scenarios-heading">План нашего вечера</h3>
-            </div>
-            <div id="scenarios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"></div>
+    <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="text-center mb-8">
+            <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Тёплые слова</span>
+            <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1">Почему именно ты?</h3>
+            <p class="text-xs sm:text-sm text-inkLight mt-1">Нажми на любую карточку, чтобы перевернуть её</p>
         </div>
 
-        <!-- Угощения и атмосфера -->
-        <div class="glass-card rounded-[2rem] p-5 sm:p-8">
-            <div class="text-center mb-6">
-                <h3 class="font-serif text-2xl sm:text-3xl font-semibold text-ink" id="menu-heading">Что будет на встрече</h3>
-                <p class="text-xs sm:text-sm text-inkLight mt-1" id="menu-sub">Отметь пункты, которые войдут в приглашение</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="bg-white/90 rounded-2xl p-4 border border-roseSoft/40">
-                    <h4 class="font-serif text-xl font-semibold text-ink mb-3">☕ Напитки</h4>
-                    <div id="drinks-list" class="flex flex-wrap gap-2"></div>
-                </div>
-                <div class="bg-white/90 rounded-2xl p-4 border border-roseSoft/40">
-                    <h4 class="font-serif text-xl font-semibold text-ink mb-3">🥐 Десерты и еда</h4>
-                    <div id="treats-list" class="flex flex-wrap gap-2"></div>
-                </div>
-                <div class="bg-white/90 rounded-2xl p-4 border border-roseSoft/40">
-                    <h4 class="font-serif text-xl font-semibold text-ink mb-3">✨ Атмосфера</h4>
-                    <div id="vibes-list" class="flex flex-wrap gap-2"></div>
-                </div>
-            </div>
-        </div>
+        <div id="reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"></div>
 
-        <!-- Бонусные купоны -->
-        <div>
-            <div class="text-center mb-6">
-                <h3 class="font-serif text-2xl sm:text-3xl font-semibold text-ink" id="coupons-heading">Прикреплённые купоны</h3>
-                <p class="text-xs sm:text-sm text-inkLight mt-1" id="coupons-sub">Выбери бонусы, которые ты даришь на это свидание</p>
+        <!-- Добавить свою карточку -->
+        <div id="add-reason-box" class="mt-8 max-w-2xl mx-auto glass-card p-4 rounded-3xl">
+            <div class="text-xs font-semibold text-inkLight mb-2">➕ Добавить свою карточку-комплимент:</div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" id="new-reason-title" placeholder="Заголовок (например: Твой смех)" class="sm:w-1/3 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft text-xs sm:text-sm focus:outline-none focus:border-roseDeep">
+                <input type="text" id="new-reason-text" placeholder="Текст внутри карточки..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft text-xs sm:text-sm focus:outline-none focus:border-roseDeep">
+                <button type="button" onclick="addCustomReason()" class="px-5 py-2.5 rounded-xl bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0 cursor-pointer">
+                    Добавить
+                </button>
             </div>
-            <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         </div>
     </section>
 
     <!-- =========================================================
-         БЛОК 4А. ОТПРАВКА ИНТЕРАКТИВНОЙ КАРТОЧКИ (ДЛЯ ОТПРАВИТЕЛЯ)
+         БЛОК 4. МЕСТА И СЦЕНАРИИ СВИДАНИЯ (10 ВАРИАНТОВ + СВОЙ)
+         ========================================================= -->
+    <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="text-center mb-8">
+            <span id="scenarios-step-badge" class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Шаг 2 • Выбери места и формат вечера</span>
+            <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="scenarios-heading">Куда отправимся и чем займёмся?</h3>
+            <p class="text-xs sm:text-sm text-inkLight mt-1" id="scenarios-sub">Можно отметить сразу несколько мест для идеального маршрута</p>
+        </div>
+
+        <div id="scenarios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"></div>
+
+        <!-- Добавить своё место / сценарий -->
+        <div id="add-scenario-box" class="mt-8 max-w-2xl mx-auto glass-card p-4 sm:p-5 rounded-3xl">
+            <div class="text-xs font-semibold text-inkLight mb-2">✨ Написать свой вариант места или сценария:</div>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+                <input type="text" id="custom-scenario-input" placeholder="Например: Ночной картинг, крыша с видом на закат или любимая пиццерия..." class="flex-1 px-4 py-2.5 rounded-xl bg-white border border-roseSoft text-xs sm:text-sm focus:outline-none focus:border-roseDeep">
+                <button type="button" onclick="addCustomScenario()" class="px-5 py-2.5 rounded-xl bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0 cursor-pointer">
+                    + Добавить место
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         БЛОК 5. МЕНЮ НАПИТКОВ, ДЕСЕРТОВ И ВАЙБА (36 ВАРИАНТОВ + СВОИ)
+         ========================================================= -->
+    <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10">
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Детали атмосферы</span>
+                <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="menu-heading">Напитки, угощения и настроение</h3>
+                <p class="text-xs sm:text-sm text-inkLight mt-1" id="menu-sub">Отметь готовые варианты или впиши свои любимые</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Напитки -->
+                <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">☕ Напитки</h4>
+                        <div id="drinks-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div id="add-drink-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
+                        <input type="text" id="custom-drink-input" placeholder="Свой напиток..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <button type="button" onclick="addCustomChip('drinks', 'custom-drink-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
+                    </div>
+                </div>
+
+                <!-- Десерты и еда -->
+                <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">🥐 Еда и десерты</h4>
+                        <div id="treats-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div id="add-treat-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
+                        <input type="text" id="custom-treat-input" placeholder="Своё угощение..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <button type="button" onclick="addCustomChip('treats', 'custom-treat-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
+                    </div>
+                </div>
+
+                <!-- Вайб вечера -->
+                <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">✨ Вайб и музыка</h4>
+                        <div id="vibes-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div id="add-vibe-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
+                        <input type="text" id="custom-vibe-input" placeholder="Свой вайб..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <button type="button" onclick="addCustomChip('vibes', 'custom-vibe-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         БЛОК 6. БОНУСНЫЕ КУПОНЫ (8 ВАРИАНТОВ + СВОЙ КУПОН)
+         ========================================================= -->
+    <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
+        <div class="text-center mb-8">
+            <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Приятные привилегии</span>
+            <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="coupons-heading">Бонусные купоны на свидание</h3>
+            <p class="text-xs sm:text-sm text-inkLight mt-1" id="coupons-sub">Выбери купоны, которые будут действовать весь вечер</p>
+        </div>
+
+        <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+        <div id="add-coupon-box" class="mt-8 max-w-xl mx-auto glass-card p-4 rounded-3xl">
+            <div class="text-xs font-semibold text-inkLight mb-2">🎟 Добавить свой персональный купон:</div>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" id="custom-coupon-title" placeholder="Название купона (например: Массаж спины)" class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft text-xs sm:text-sm focus:outline-none focus:border-roseDeep">
+                <button type="button" onclick="addCustomCoupon()" class="px-5 py-2.5 rounded-xl bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0 cursor-pointer">
+                    + Создать купон
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- =========================================================
+         БЛОК 7А. ОТПРАВКА ИНТЕРАКТИВНОЙ КАРТОЧКИ В TELEGRAM (ОТПРАВИТЕЛЮ)
          ========================================================= -->
     <section id="sender-dispatch-section" class="relative py-12 sm:py-16 px-4 sm:px-6 max-w-4xl mx-auto z-10">
         <div class="glass-card rounded-[2rem] p-6 sm:p-10 border-2 border-roseDeep/60 shadow-xl">
-            <div class="text-center mb-6">
-                <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Шаг 3 • Отправка в Telegram</span>
-                <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1">Отправить интерактивную карточку</h3>
-                <p class="text-xs sm:text-sm text-inkLight mt-2 max-w-xl mx-auto">
-                    Отправь приглашение как живую карточку в Telegram с интерактивными кнопками ответа или как Mini App.
-                </p>
-            </div>
-
-            <!-- Вариант А: Через Telegram Bot API (нативная интерактивная карточка с кнопками в чате) -->
-            <div class="bg-white rounded-2xl p-5 border border-roseSoft space-y-4 mb-6">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xl">🤖</span>
-                        <div>
-                            <h4 class="font-semibold text-ink text-sm">Способ 1: Интерактивная карточка с кнопками прямо в чате Telegram</h4>
-                            <p class="text-xs text-inkLight">Бот отправит карточку с кнопками «Да, согласна!», «Открыть открытку» и «Подумаю»</p>
-                        </div>
-                    </div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-roseSoft/50">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Шаг 3 • Отправка в Telegram</span>
+                    <h3 class="font-serif text-2xl sm:text-4xl font-bold text-ink mt-1">Получить интерактивную карточку</h3>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <label class="block text-xs font-semibold text-inkLight mb-1">9236515621:AAGkgraVQju1zMB3tbAxDUZ7f3LdwSUJrMs</label>
-                        <input type="text" id="input-bot-token" oninput="saveBotCredentials()" placeholder="123456789:AAH..." class="w-full px-3.5 py-2.5 rounded-xl bg-cream border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-inkLight mb-1">6328261300</label>
-                        <input type="text" id="input-target-chatid" oninput="saveBotCredentials()" placeholder="например: 987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-cream border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
-                    </div>
-                </div>
-
-                <button type="button" onclick="sendInteractiveCardViaBot()" class="w-full py-4 px-6 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-semibold text-sm sm:text-base shadow-md transition-all flex items-center justify-center gap-2.5 cursor-pointer">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                    <span>Отправить интерактивную карточку в Telegram</span>
+                <button type="button" onclick="openBotGuideModal()" class="self-start sm:self-center px-4 py-2 rounded-xl bg-blush text-roseDeep border border-roseSoft text-xs font-semibold hover:bg-roseSoft/40 transition-colors cursor-pointer">
+                    ❓ Где взять Bot Token и Chat ID?
                 </button>
             </div>
 
-            <!-- Вариант Б: Отправить готовую интерактивную веб-карточку / Mini App -->
-            <div class="bg-cream rounded-2xl p-5 border border-roseSoft/70 space-y-3">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl">💌</span>
+            <div class="mt-6 space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div>
-                        <h4 class="font-semibold text-ink text-sm">Способ 2: Отправить интерактивную открытку напрямую в ЛС</h4>
-                        <p class="text-xs text-inkLight">Человек откроет карточку с твоими условиями и нажмёт «Да» или «Нет»</p>
+                        <label class="block text-xs font-semibold text-inkLight mb-1.5">Bot Token (от @BotFather)</label>
+                        <input type="text" id="input-bot-token" oninput="saveBotCredentials()" placeholder="7123456789:AAH..." class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-inkLight mb-1.5">Твой Chat ID (от @userinfobot)</label>
+                        <input type="text" id="input-target-chatid" oninput="saveBotCredentials()" placeholder="например: 519283746" class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="input-my-tg" oninput="saveBotCredentials()" placeholder="Твой @username в Telegram (чтобы пришёл ответ)" class="flex-1 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-inkLight mb-1.5">Твой @username в Telegram (чтобы после согласия пришёл ответ тебе в ЛС)</label>
+                    <input type="text" id="input-my-tg" oninput="saveBotCredentials()" placeholder="например: artem_ivanov" class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <a id="direct-tg-share-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" onclick="updateShareLinks()" class="py-3.5 px-5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-semibold text-xs sm:text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <span>✈️ Выбрать контакт в Telegram и отправить</span>
+                <button type="button" onclick="sendInteractiveCardViaBot()" class="w-full py-4 px-6 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-semibold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+                    <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+                    <span>Отправить интерактивную карточку в мой Telegram</span>
+                </button>
+
+                <div class="pt-3 border-t border-roseSoft/40 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a id="direct-tg-share-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" onclick="updateShareLinks()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-xs sm:text-sm text-center shadow-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span>✈️ Переслать карточку в ЛС сразу</span>
                     </a>
-                    <button type="button" onclick="copyInteractiveInviteLink()" class="py-3.5 px-5 rounded-2xl bg-white border border-roseSoft text-ink font-medium text-xs sm:text-sm hover:bg-blush transition-all flex items-center justify-center gap-2 cursor-pointer">
-                        <span>🔗 Скопировать ссылку на открытку</span>
+                    <button type="button" onclick="copyInteractiveInviteLink()" class="py-3 px-4 rounded-xl bg-white border border-roseSoft text-ink font-medium text-xs sm:text-sm hover:bg-blush transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span>🔗 Скопировать ссылку на карточку</span>
                     </button>
                 </div>
             </div>
@@ -330,35 +445,45 @@
     </section>
 
     <!-- =========================================================
-         БЛОК 4Б. ОТВЕТ ПОЛУЧАТЕЛЯ «ДА» / «НЕТ» (ВИДИТ ТОЛЬКО ПРИГЛАШЁННЫЙ)
+         БЛОК 7Б. ФИНАЛЬНЫЙ ВОПРОС ДЛЯ ПОЛУЧАТЕЛЯ (УБЕГАЮЩИЙ ОТКАЗ)
          ========================================================= -->
     <section id="recipient-reply-section" class="hidden relative py-14 sm:py-20 px-4 sm:px-6 max-w-3xl mx-auto z-10">
-        <div id="question-box" class="glass-card rounded-[2rem] p-6 sm:p-12 text-center border-2 border-white shadow-xl">
-            <div class="text-4xl mb-4">💌</div>
+        <div id="question-box" class="glass-card rounded-[2rem] p-6 sm:p-14 text-center border-2 border-white shadow-xl relative overflow-hidden min-h-[360px] flex flex-col items-center justify-center">
+            <div class="text-5xl mb-4 animate-bounce">💌</div>
             <h2 class="font-serif fluid-h2 font-semibold text-ink">
                 <span id="final-name" class="italic text-roseDeep">Алиса</span>, ты пойдёшь со мной?
             </h2>
-            <p class="text-sm text-inkLight mt-2">Выбери ответ, чтобы отправить его <span id="final-sender-name">Артёму</span></p>
+            <p class="text-sm sm:text-base text-inkLight mt-2 max-w-md mx-auto">
+                Обещаю самый тёплый вечер, искренние улыбки и море приятных эмоций.
+            </p>
 
-            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button id="accept-btn" type="button" onclick="sendRecipientDecision(true)" class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E58FA5] text-white font-semibold text-base sm:text-lg shadow-lg hover:scale-105 transition-all cursor-pointer">
+            <div class="mt-9 flex flex-col sm:flex-row items-center justify-center gap-4 w-full min-h-[110px] relative">
+                <button id="accept-btn" type="button" onclick="acceptInvitationByRecipient()" class="w-full sm:w-auto z-20 px-9 py-4 rounded-full bg-gradient-to-r from-roseDeep to-[#E58FA5] text-white font-semibold text-base sm:text-lg shadow-lg hover:scale-105 transition-all cursor-pointer">
                     Да, я согласна! 💖
                 </button>
-                <button id="decline-btn" type="button" onclick="sendRecipientDecision(false)" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white border border-roseSoft text-inkLight font-medium text-sm sm:text-base hover:bg-blush/50 transition-all cursor-pointer">
-                    Пока не смогу 🙈
+
+                <button id="runaway-btn" type="button" onmouseover="moveRunawayButton()" onclick="moveRunawayButton(event)" ontouchstart="moveRunawayButton(event)" class="w-full sm:w-auto z-20 px-6 py-3.5 rounded-full bg-white border border-roseSoft text-inkLight font-medium text-sm sm:text-base shadow-sm transition-all duration-150 cursor-pointer select-none">
+                    Я подумаю... 🙈
                 </button>
             </div>
         </div>
 
-        <!-- Подтверждение ответа получателя -->
+        <!-- Подтверждение после нажатия "Да" -->
         <div id="recipient-confirmed-box" class="hidden glass-card bg-white rounded-[2rem] p-6 sm:p-10 text-center border-2 border-roseSoft shadow-xl">
-            <div id="reply-result-emoji" class="text-5xl mb-3">🎉</div>
-            <h3 id="reply-result-title" class="font-serif text-3xl font-bold text-ink">Ответ отправлен!</h3>
-            <p id="reply-result-desc" class="text-sm text-inkLight mt-2">Теперь можно перейти в Telegram, чтобы подтвердить встречу.</p>
+            <div class="text-5xl mb-3">💖✨</div>
+            <h3 class="font-serif text-3xl sm:text-4xl font-bold text-ink">Ура! Свидание подтверждено!</h3>
+            <p class="text-sm sm:text-base text-inkLight mt-2">
+                Нажми кнопку ниже, чтобы отправить твой ответ для <span id="confirm-sender-name" class="font-semibold text-ink">Артёма</span> в Telegram:
+            </p>
 
-            <a id="recipient-send-tg-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#2AABEE] text-white font-semibold text-sm sm:text-base shadow-md hover:bg-[#229ED9] transition-all">
-                <span>✈️ Отправить ответ в Telegram</span>
-            </a>
+            <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+                <a id="recipient-send-tg-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" class="px-8 py-4 rounded-2xl bg-[#2AABEE] text-white font-semibold text-sm sm:text-base shadow-md hover:bg-[#229ED9] transition-all flex items-center justify-center gap-2">
+                    <span>✈️ Отправить «Да!» в Telegram</span>
+                </a>
+                <button type="button" onclick="copyRecipientReplyText()" class="px-6 py-4 rounded-2xl bg-blush text-roseDeep font-semibold text-sm hover:bg-roseSoft/50 transition-all cursor-pointer">
+                    Скопировать текст ответа
+                </button>
+            </div>
         </div>
     </section>
 
@@ -370,7 +495,7 @@
          JAVASCRIPT ЛОГИКА
          ========================================================= -->
     <script>
-        const STORAGE_KEY = 'pastel_date_creator_v5';
+        const STORAGE_KEY = 'pastel_date_ultimate_v6';
         const state = {
             isRecipientView: false,
             gender: 'her',
@@ -379,32 +504,85 @@
             dateStr: '',
             timeStr: '19:00',
             place: '',
-            letterText: 'Иногда среди бесконечных дел хочется просто нажать на паузу и провести время с человеком, рядом с которым легко и тепло. Я не стал ждать особого повода в календаре и решил создать его сам. Пойдёшь со мной на свидание?',
+            customLetterEdited: false,
+            letterText: '',
             botToken: '',
             targetChatId: '',
             myTgUsername: '',
-            scenarios: [
-                { id: 'coffee', emoji: '☕', title: 'Уютный вечер в кофейне и прогулка под фонарями', desc: 'Тёплые напитки, неспешные разговоры и огни вечернего города.', selected: true },
-                { id: 'cinema', emoji: '🎬', title: 'Киномарафон с пледом и любимой едой', desc: 'Атмосферные фильмы, вкусняшки и полный релакс без лишней суеты.', selected: false },
-                { id: 'dinner', emoji: '🕯️', title: 'Ужин при свечах и ночной город', desc: 'Красивый вечер, вкусная кухня и панорама ночных улиц.', selected: false },
-                { id: 'picnic', emoji: '🌅', title: 'Пикник на закате с музыкой', desc: 'Любимый плейлист, фрукты, свежий воздух и красивый закат.', selected: false }
+            reasons: [
+                { icon: '✨', title: 'Твоя улыбка', text: 'Она способна мгновенно сделать даже самый пасмурный день светлее и теплее.' },
+                { icon: '💬', title: 'Лёгкость в общении', text: 'С тобой не нужно притворяться или подбирать слова — можно просто быть собой.' },
+                { icon: '🎧', title: 'Особый вайб', text: 'Рядом с тобой время течёт иначе, а самые простые моменты запоминаются надолго.' },
+                { icon: '🌷', title: 'Искренность', text: 'В твоих глазах и словах всегда чувствуется настоящее тепло и доброта.' },
+                { icon: '😂', title: 'Чувство юмора', text: 'Мы можем смеяться над мелочами так, что вокруг всё перестаёт иметь значение.' },
+                { icon: '🌙', title: 'Вдохновение', text: 'После встреч с тобой хочется улыбаться, мечтать и делать мир чуточку лучше.' },
+                { icon: '🔥', title: 'Энергия', text: 'Рядом с тобой появляется желание придумывать что-то новое и радоваться мелочам.' },
+                { icon: '👀', title: 'Взгляд', text: 'В твоих глазах столько тепла, что в них хочется смотреть бесконечно.' },
+                { icon: '🎶', title: 'Вкус и стиль', text: 'Мне нравится всё, что ты любишь — от музыки до твоих маленьких привычек.' },
+                { icon: '☕', title: 'Уют', text: 'Даже обычная чашка кофе рядом с тобой превращается в маленькое событие.' },
+                { icon: '🌟', title: 'Уникальность', text: 'Таких людей, как ты, больше нет — и мне невероятно повезло тебя знать.' },
+                { icon: '💫', title: 'Моменты вместе', text: 'Каждая наша встреча оставляет после себя самое тёплое послевкусие.' }
             ],
-            drinks: ['Капучино ☕', 'Матча-латте 🍵', 'Какао с маршмеллоу 🍫', 'Облепиховый чай 🍊', 'Игристое / Лимонад 🥂'],
+            scenarios: [
+                { id: 'coffee', emoji: '☕', title: 'Уютная кофейня и прогулка под фонарями', desc: 'Тёплые напитки, неспешные разговоры и огни вечернего города.', selected: true },
+                { id: 'cinema', emoji: '🎬', title: 'Киномарафон с пледом и любимой едой', desc: 'Атмосферные фильмы, вкусняшки и полный релакс без суеты.', selected: false },
+                { id: 'dinner', emoji: '🕯️', title: 'Романтический ужин при свечах', desc: 'Красивый вечер, вкусная кухня и приятная атмосфера.', selected: false },
+                { id: 'picnic', emoji: '🌅', title: 'Пикник на закате с музыкой', desc: 'Любимый плейлист, фрукты, свежий воздух и красивый закат.', selected: false },
+                { id: 'nightdrive', emoji: '🚗', title: 'Ночная поездка по городу под любимые треки', desc: 'Пустые дороги, огни ночных проспектов и разговоры по душам.', selected: false },
+                { id: 'planetarium', emoji: '🌌', title: 'Планетарий или ночное небо за городом', desc: 'Смотреть на звёзды, загадывать желания и мечтать.', selected: false },
+                { id: 'pottery', emoji: '🏺', title: 'Творческий мастер-класс (гончарка или рисование)', desc: 'Сделать что-то своими руками на память об этом вечере.', selected: false },
+                { id: 'boat', emoji: '🛥️', title: 'Прогулка у воды или на теплоходе', desc: 'Лёгкий ветер, отражение огней в воде и красивые фото.', selected: false },
+                { id: 'boardgames', emoji: '🎲', title: 'Вечер настольных игр или антикафе', desc: 'Азарт, смех, соревновательный дух и вкусный чай.', selected: false },
+                { id: 'amusement', emoji: '🎡', title: 'Парк аттракционов и колесо обозрения', desc: 'Сладкая вата, вид на город с высоты и детские эмоции.', selected: false }
+            ],
+            drinks: [
+                'Капучино ☕', 'Матча-латте 🍵', 'Какао с маршмеллоу 🍫', 'Облепиховый чай 🍊',
+                'Игристое / Лимонад 🥂', 'Раф с солёной карамелью 🍯', 'Айс-латте 🧊', 'Глинтвейн 🍷',
+                'Малиновый пунш 🍓', 'Горячий шоколад 🤎', 'Фреш апельсиновый 🍹', 'Молочный коктейль 🥤'
+            ],
             selectedDrinks: ['Капучино ☕'],
-            treats: ['Тёплый круассан 🥐', 'Чизкейк 🍰', 'Клубника в шоколаде 🍓', 'Итальянская пицца 🍕', 'Мороженое 🍨'],
+            treats: [
+                'Тёплый круассан 🥐', 'Чизкейк 🍰', 'Клубника в шоколаде 🍓', 'Итальянская пицца 🍕',
+                'Мороженое 🍨', 'Макаронс 🍬', 'Суши / Роллы 🍣', 'Паста Карбонара 🍝',
+                'Сырная тарелка 🧀', 'Бельгийские вафли 🧇', 'Тирамису 🍮', 'Бургеры и картошка 🍔'
+            ],
             selectedTreats: ['Тёплый круассан 🥐'],
-            vibes: ['Без телефонов 📵', 'Много смеха 😂', 'Долгие разговоры 💭', 'Плейлист на двоих 🎶', 'Сюрприз 🎁'],
+            vibes: [
+                'Без телефонов 📵', 'Много смеха 😂', 'Долгие разговоры 💭', 'Плейлист на двоих 🎶',
+                'Сюрприз 🎁', 'Фото на память 📸', 'Уютный плед 🧣', 'Ночные огни 🌃',
+                'Танцы под любимую песню 💃', 'Никуда не спешить ⏳', 'Тёплые объятия 🤗', 'Искренность 💖'
+            ],
             selectedVibes: ['Много смеха 😂', 'Долгие разговоры 💭'],
             coupons: [
                 { id: 'music', emoji: '🎵', title: 'Право выбора музыки', desc: 'Весь вечер играет только твой любимый плейлист', claimed: true },
                 { id: 'hugs', emoji: '🤗', title: 'Бесконечные объятия', desc: 'Действует без ограничений по времени и количеству', claimed: true },
                 { id: 'dessert', emoji: '🍰', title: 'Десерт за мой счёт', desc: 'Любой самый вкусный десерт из меню — твой', claimed: false },
-                { id: 'extend', emoji: '⏳', title: 'Продление вечера на час', desc: 'Если не захочется расходиться — гуляем ещё!', claimed: false }
-            ]
+                { id: 'extend', emoji: '⏳', title: 'Продление вечера на час', desc: 'Если не захочется расходиться — гуляем ещё!', claimed: false },
+                { id: 'photos', emoji: '📸', title: 'Личный фотограф', desc: 'Сделаю для тебя самые красивые кадры за вечер', claimed: false },
+                { id: 'taxi', emoji: '🚕', title: 'Комфортная доставка домой', desc: 'Отвезу или вызову такси прямо до подъезда', claimed: false },
+                { id: 'noplan', emoji: '👑', title: 'Королевский отдых', desc: 'Тебе не нужно ни о чём думать — всё организую я', claimed: false },
+                { id: 'wish', emoji: '🌠', title: 'Исполнение одного желания', desc: 'Любой каприз в рамках нашего свидания', claimed: false }
+            ],
+            runawayAttempts: 0
         };
 
+        const runawayPhrases = [
+            'Уверены? 🥺',
+            'А если с вкусняшками? 🍰',
+            'Ну пожалуйста... 🌸',
+            'Ой, кнопка сломалась! 🙈',
+            'Нажми соседнюю розовую! 💖',
+            'Не убежишь от хорошего вечера ✨',
+            'Эта кнопка сегодня не работает 😄'
+        ];
+
+        function getDefaultLetter(gender) {
+            return gender === 'her'
+                ? 'Иногда среди бесконечных дел хочется просто нажать на паузу и провести время с человеком, рядом с которым легко и тепло. Я не стал ждать особого повода в календаре и решил создать его сам. Пойдёшь со мной на свидание?'
+                : 'Иногда среди бесконечных дел хочется просто нажать на паузу и провести время с человеком, рядом с которым легко и интересно. Я не стала ждать особого повода в календаре и решила создать его сама. Пойдёшь со мной на свидание?';
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            // Инициализация Telegram Web App SDK, если открыто внутри Telegram
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.ready();
                 window.Telegram.WebApp.expand();
@@ -413,6 +591,7 @@
             const defaultDate = new Date();
             defaultDate.setDate(defaultDate.getDate() + 3);
             state.dateStr = defaultDate.toISOString().split('T')[0];
+            state.letterText = getDefaultLetter('her');
 
             parseUrlAndStorage();
             applyRoleMode();
@@ -436,7 +615,6 @@
 
         function parseUrlAndStorage() {
             const params = new URLSearchParams(window.location.search);
-            // Поддержка параметра startapp из Telegram Mini App (?tgWebAppStartParam=...)
             const tgStartParam = params.get('tgWebAppStartParam') || (window.Telegram?.WebApp?.initDataUnsafe?.start_param);
 
             if (params.get('view') === '1' || params.get('to') || tgStartParam) {
@@ -446,7 +624,16 @@
             if (!state.isRecipientView) {
                 try {
                     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                    Object.assign(state, saved);
+                    if (saved.gender) state.gender = saved.gender;
+                    if (saved.recipientName) state.recipientName = saved.recipientName;
+                    if (saved.senderName) state.senderName = saved.senderName;
+                    if (saved.dateStr) state.dateStr = saved.dateStr;
+                    if (saved.timeStr) state.timeStr = saved.timeStr;
+                    if (saved.place) state.place = saved.place;
+                    if (saved.letterText) { state.letterText = saved.letterText; state.customLetterEdited = true; }
+                    if (saved.botToken) state.botToken = saved.botToken;
+                    if (saved.targetChatId) state.targetChatId = saved.targetChatId;
+                    if (saved.myTgUsername) state.myTgUsername = saved.myTgUsername;
                 } catch (e) {}
             }
 
@@ -458,16 +645,27 @@
             if (params.get('place')) state.place = params.get('place');
             if (params.get('msg')) state.letterText = params.get('msg');
             if (params.get('tg')) state.myTgUsername = params.get('tg').replace(/^@/, '');
+
             if (params.get('sc')) {
-                const selectedIds = params.get('sc').split(',');
-                state.scenarios.forEach(s => s.selected = selectedIds.includes(s.id));
+                const selectedTitles = params.get('sc').split('||').filter(Boolean);
+                state.scenarios.forEach(s => s.selected = false);
+                selectedTitles.forEach(title => {
+                    const existing = state.scenarios.find(s => s.title === title);
+                    if (existing) existing.selected = true;
+                    else state.scenarios.push({ id: 'c_' + Math.random(), emoji: '🌟', title, desc: 'Особый пункт программы', selected: true });
+                });
             }
-            if (params.get('dr')) state.selectedDrinks = params.get('dr').split(',').filter(Boolean);
-            if (params.get('tr')) state.selectedTreats = params.get('tr').split(',').filter(Boolean);
-            if (params.get('vb')) state.selectedVibes = params.get('vb').split(',').filter(Boolean);
+            if (params.get('dr')) state.selectedDrinks = params.get('dr').split('||').filter(Boolean);
+            if (params.get('tr')) state.selectedTreats = params.get('tr').split('||').filter(Boolean);
+            if (params.get('vb')) state.selectedVibes = params.get('vb').split('||').filter(Boolean);
             if (params.get('cp')) {
-                const cpIds = params.get('cp').split(',');
-                state.coupons.forEach(c => c.claimed = cpIds.includes(c.id));
+                const cpTitles = params.get('cp').split('||').filter(Boolean);
+                state.coupons.forEach(c => c.claimed = false);
+                cpTitles.forEach(title => {
+                    const existing = state.coupons.find(c => c.title === title);
+                    if (existing) existing.claimed = true;
+                    else state.coupons.push({ id: 'cp_' + Math.random(), emoji: '🎟', title, desc: 'Персональный купон на вечер', claimed: true });
+                });
             }
         }
 
@@ -475,19 +673,85 @@
             if (state.isRecipientView) {
                 document.getElementById('creator-setup-section').classList.add('hidden');
                 document.getElementById('sender-dispatch-section').classList.add('hidden');
+                document.getElementById('help-guide-btn').classList.add('hidden');
                 document.getElementById('recipient-reply-section').classList.remove('hidden');
 
                 document.getElementById('letter-editor-wrap').classList.add('hidden');
                 document.getElementById('letter-readonly-text').classList.remove('hidden');
 
-                document.getElementById('mode-badge').textContent = `Приглашение от ${state.senderName}`;
-                document.getElementById('scenarios-step-badge').textContent = 'Программа вечера';
+                document.getElementById('add-reason-box').classList.add('hidden');
+                document.getElementById('add-scenario-box').classList.add('hidden');
+                document.getElementById('add-drink-box').classList.add('hidden');
+                document.getElementById('add-treat-box').classList.add('hidden');
+                document.getElementById('add-vibe-box').classList.add('hidden');
+                document.getElementById('add-coupon-box').classList.add('hidden');
+
+                document.getElementById('scenarios-step-badge').textContent = 'Программа нашего вечера';
                 document.getElementById('scenarios-heading').textContent = 'Что нас ждёт';
-                document.getElementById('menu-heading').textContent = 'Я подготовил для тебя';
+                document.getElementById('scenarios-sub').classList.add('hidden');
+                document.getElementById('menu-heading').textContent = state.gender === 'her' ? 'Я подготовил для тебя' : 'Я подготовила для тебя';
                 document.getElementById('menu-sub').classList.add('hidden');
-                document.getElementById('coupons-heading').textContent = 'Твои бонусы на вечер';
+                document.getElementById('coupons-heading').textContent = 'Твои бонусы на этот вечер';
                 document.getElementById('coupons-sub').classList.add('hidden');
             }
+        }
+
+        function setRecipientGender(gender, shouldSync = true) {
+            const prevGender = state.gender;
+            state.gender = gender;
+            const herBtn = document.getElementById('gender-her-btn');
+            const himBtn = document.getElementById('gender-him-btn');
+            if (gender === 'her') {
+                herBtn.className = 'py-2.5 px-4 rounded-xl border-2 border-roseDeep bg-blush text-ink font-semibold text-xs sm:text-sm cursor-pointer';
+                himBtn.className = 'py-2.5 px-4 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-semibold text-xs sm:text-sm cursor-pointer';
+            } else {
+                himBtn.className = 'py-2.5 px-4 rounded-xl border-2 border-roseDeep bg-blush text-ink font-semibold text-xs sm:text-sm cursor-pointer';
+                herBtn.className = 'py-2.5 px-4 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-semibold text-xs sm:text-sm cursor-pointer';
+            }
+
+            if (!state.isRecipientView && (!state.customLetterEdited || document.getElementById('input-letter-text').value.trim() === getDefaultLetter(prevGender))) {
+                state.letterText = getDefaultLetter(gender);
+                document.getElementById('input-letter-text').value = state.letterText;
+            }
+            if (shouldSync) syncUI();
+        }
+
+        function formatRussianDate(dateStr) {
+            if (!dateStr) return 'Скоро';
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            return `${parseInt(parts[2], 10)} ${months[parseInt(parts[1], 10) - 1]}`;
+        }
+
+        function syncUI() {
+            if (!state.isRecipientView) {
+                state.recipientName = document.getElementById('input-recipient-name').value.trim() || 'Тебя';
+                state.senderName = document.getElementById('input-sender-name').value.trim() || 'Я';
+                state.dateStr = document.getElementById('input-date').value;
+                state.timeStr = document.getElementById('input-time').value || '19:00';
+                state.place = document.getElementById('input-place').value.trim();
+                const currentTxt = document.getElementById('input-letter-text').value;
+                if (currentTxt !== getDefaultLetter(state.gender)) state.customLetterEdited = true;
+                state.letterText = currentTxt;
+                saveStateToStorage();
+            }
+
+            const isHer = state.gender === 'her';
+            const formattedDate = formatRussianDate(state.dateStr);
+
+            document.getElementById('hero-name').textContent = state.recipientName;
+            document.getElementById('final-name').textContent = state.recipientName;
+            document.getElementById('confirm-sender-name').textContent = state.senderName;
+            document.getElementById('hero-date-badge').textContent = `${formattedDate} • ${state.timeStr}`;
+
+            document.getElementById('letter-greeting').textContent = isHer ? `Дорогая ${state.recipientName},` : `Дорогой ${state.recipientName},`;
+            document.getElementById('letter-sender').textContent = isHer ? `Твой ${state.senderName}` : `Твоя ${state.senderName}`;
+            document.getElementById('letter-readonly-text').textContent = state.letterText;
+            document.getElementById('letter-place-display').textContent = state.place ? `📍 ${state.place}` : '📍 Место уточним вместе';
+
+            document.getElementById('accept-btn').textContent = isHer ? 'Да, я согласна! 💖' : 'Да, я согласен! 💖';
+            updateShareLinks();
         }
 
         function saveBotCredentials() {
@@ -516,68 +780,34 @@
             } catch (e) {}
         }
 
-        function setRecipientGender(gender, shouldSync = true) {
-            state.gender = gender;
-            const herBtn = document.getElementById('gender-her-btn');
-            const himBtn = document.getElementById('gender-him-btn');
-            if (gender === 'her') {
-                herBtn.className = 'py-2 px-3.5 rounded-xl border-2 border-roseDeep bg-blush text-ink font-medium text-xs sm:text-sm cursor-pointer';
-                himBtn.className = 'py-2 px-3.5 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-xs sm:text-sm cursor-pointer';
-            } else {
-                himBtn.className = 'py-2 px-3.5 rounded-xl border-2 border-roseDeep bg-blush text-ink font-medium text-xs sm:text-sm cursor-pointer';
-                herBtn.className = 'py-2 px-3.5 rounded-xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-xs sm:text-sm cursor-pointer';
-            }
-            if (shouldSync) syncUI();
-        }
-
-        function formatRussianDate(dateStr) {
-            if (!dateStr) return 'Скоро';
-            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-            const parts = dateStr.split('-');
-            if (parts.length !== 3) return dateStr;
-            return `${parseInt(parts[2], 10)} ${months[parseInt(parts[1], 10) - 1]}`;
-        }
-
-        function syncUI() {
-            if (!state.isRecipientView) {
-                state.recipientName = document.getElementById('input-recipient-name').value.trim() || 'Тебя';
-                state.senderName = document.getElementById('input-sender-name').value.trim() || 'Я';
-                state.dateStr = document.getElementById('input-date').value;
-                state.timeStr = document.getElementById('input-time').value || '19:00';
-                state.place = document.getElementById('input-place').value.trim();
-                state.letterText = document.getElementById('input-letter-text').value.trim();
-                saveStateToStorage();
-            }
-
-            const isHer = state.gender === 'her';
-            const formattedDate = formatRussianDate(state.dateStr);
-
-            document.getElementById('hero-name').textContent = state.recipientName;
-            document.getElementById('final-name').textContent = state.recipientName;
-            document.getElementById('final-sender-name').textContent = state.senderName;
-            document.getElementById('hero-date-badge').textContent = `${formattedDate} • ${state.timeStr}`;
-
-            document.getElementById('letter-greeting').textContent = isHer ? `Дорогая ${state.recipientName},` : `Дорогой ${state.recipientName},`;
-            document.getElementById('letter-sender').textContent = isHer ? `Твой ${state.senderName}` : `Твоя ${state.senderName}`;
-            document.getElementById('letter-readonly-text').textContent = state.letterText;
-            document.getElementById('letter-place-display').textContent = state.place ? `📍 ${state.place}` : '📍 Место уточним вместе';
-
-            document.getElementById('accept-btn').textContent = isHer ? 'Да, я согласна! 💖' : 'Да, я согласен! 💖';
-
-            updateShareLinks();
-        }
-
+        // --- РЕНДЕР ВСЕХ ИНТЕРАКТИВНЫХ БЛОКОВ ---
         function renderAllBlocks() {
-            // Сценарии
+            // 1. 3D Карточки комплиментов
+            const rGrid = document.getElementById('reasons-grid');
+            rGrid.innerHTML = state.reasons.map(item => `
+                <div onclick="this.classList.toggle('flipped')" class="flip-card perspective-1000 h-48 cursor-pointer group">
+                    <div class="flip-inner">
+                        <div class="flip-front glass-card p-5 flex flex-col items-center justify-center text-center border border-white group-hover:border-roseSoft transition-colors">
+                            <div class="w-11 h-11 rounded-2xl bg-blush flex items-center justify-center text-2xl mb-2.5 group-hover:scale-110 transition-transform">${item.icon}</div>
+                            <h4 class="font-serif text-xl font-semibold text-ink">${item.title}</h4>
+                            <span class="text-[11px] text-roseDeep mt-1.5">Нажми, чтобы открыть →</span>
+                        </div>
+                        <div class="flip-back bg-gradient-to-br from-roseDeep to-[#E38EA3] text-white p-5 flex flex-col items-center justify-center text-center shadow-lg">
+                            <span class="text-xl mb-1.5">${item.icon}</span>
+                            <p class="text-xs sm:text-sm leading-relaxed">${item.text}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 2. Сценарии и места
             const scGrid = document.getElementById('scenarios-grid');
             const visibleScenarios = state.isRecipientView ? state.scenarios.filter(s => s.selected) : state.scenarios;
             scGrid.innerHTML = visibleScenarios.map(sc => `
-                <div onclick="${state.isRecipientView ? '' : `toggleScenario('${sc.id}')`}" class="glass-card rounded-3xl p-5 border-2 transition-all ${state.isRecipientView ? 'border-roseDeep/60 bg-white' : (sc.selected ? 'border-roseDeep bg-white cursor-pointer shadow-md' : 'border-transparent opacity-70 cursor-pointer hover:opacity-100')}">
+                <div onclick="${state.isRecipientView ? '' : `toggleScenario('${sc.id}')`}" class="glass-card rounded-3xl p-5 border-2 transition-all ${state.isRecipientView ? 'border-roseDeep/60 bg-white' : (sc.selected ? 'border-roseDeep bg-white cursor-pointer shadow-md' : 'border-transparent opacity-75 cursor-pointer hover:opacity-100')}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3.5">
-                            <div class="w-11 h-11 rounded-2xl ${sc.selected ? 'bg-roseDeep text-white' : 'bg-blush text-ink'} flex items-center justify-center text-xl shrink-0">
-                                ${sc.emoji}
-                            </div>
+                            <div class="w-11 h-11 rounded-2xl ${sc.selected ? 'bg-roseDeep text-white' : 'bg-blush text-ink'} flex items-center justify-center text-xl shrink-0">${sc.emoji}</div>
                             <div>
                                 <h4 class="font-serif text-xl font-semibold text-ink leading-snug">${sc.title}</h4>
                                 <p class="text-xs text-inkLight mt-1">${sc.desc}</p>
@@ -588,24 +818,26 @@
                 </div>
             `).join('');
 
-            // Меню
+            // 3. Меню напитков, угощений и вайба
             renderChipList('drinks-list', state.drinks, state.selectedDrinks, 'drinks');
             renderChipList('treats-list', state.treats, state.selectedTreats, 'treats');
             renderChipList('vibes-list', state.vibes, state.selectedVibes, 'vibes');
 
-            // Купоны
+            // 4. Купоны
             const cpGrid = document.getElementById('coupons-grid');
             const visibleCoupons = state.isRecipientView ? state.coupons.filter(c => c.claimed) : state.coupons;
             cpGrid.innerHTML = visibleCoupons.map(c => `
-                <div onclick="${state.isRecipientView ? '' : `toggleCoupon('${c.id}')`}" class="glass-card rounded-2xl p-4 border-2 border-dashed flex items-center justify-between gap-3 ${state.isRecipientView ? 'border-roseDeep bg-blush/40' : (c.claimed ? 'border-roseDeep bg-blush/50 cursor-pointer' : 'border-roseSoft opacity-75 cursor-pointer')}">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">${c.emoji}</span>
+                <div onclick="${state.isRecipientView ? '' : `toggleCoupon('${c.id}')`}" class="glass-card rounded-2xl p-4 border-2 border-dashed flex flex-col justify-between gap-3 ${state.isRecipientView ? 'border-roseDeep bg-blush/40' : (c.claimed ? 'border-roseDeep bg-blush/50 cursor-pointer' : 'border-roseSoft opacity-80 cursor-pointer')}">
+                    <div class="flex items-start gap-3">
+                        <span class="text-2xl shrink-0">${c.emoji}</span>
                         <div>
-                            <h4 class="font-serif text-lg font-bold text-ink">${c.title}</h4>
-                            <p class="text-xs text-inkLight">${c.desc}</p>
+                            <h4 class="font-serif text-lg font-bold text-ink leading-tight">${c.title}</h4>
+                            <p class="text-xs text-inkLight mt-1">${c.desc}</p>
                         </div>
                     </div>
-                    ${!state.isRecipientView ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${c.claimed ? 'bg-roseDeep text-white' : 'bg-white text-roseDeep border border-roseSoft'}">${c.claimed ? 'Включено ✓' : '+ Добавить'}</span>` : '<span class="text-xs font-semibold text-roseDeep">Твой бонус ✨</span>'}
+                    <div class="text-right">
+                        ${!state.isRecipientView ? `<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${c.claimed ? 'bg-roseDeep text-white' : 'bg-white text-roseDeep border border-roseSoft'}">${c.claimed ? 'Включено ✓' : '+ Добавить'}</span>` : '<span class="text-xs font-semibold text-roseDeep">Твой бонус ✨</span>'}
+                    </div>
                 </div>
             `).join('');
         }
@@ -615,8 +847,58 @@
             const list = state.isRecipientView ? selected : items;
             el.innerHTML = list.map(item => {
                 const active = selected.includes(item);
-                return `<button type="button" onclick="${state.isRecipientView ? '' : `toggleChip('${cat}', '${item}')`}" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all ${active ? 'bg-roseDeep text-white' : 'bg-cream text-ink border border-roseSoft'} ${state.isRecipientView ? 'cursor-default' : 'cursor-pointer'}">${item}</button>`;
+                const safeItem = item.replace(/'/g, "\\'");
+                return `<button type="button" onclick="${state.isRecipientView ? '' : `toggleChip('${cat}', '${safeItem}')`}" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all ${active ? 'bg-roseDeep text-white shadow-xs' : 'bg-cream text-ink border border-roseSoft hover:bg-blush/50'} ${state.isRecipientView ? 'cursor-default' : 'cursor-pointer'}">${item}</button>`;
             }).join('');
+        }
+
+        function addCustomReason() {
+            const titleEl = document.getElementById('new-reason-title');
+            const textEl = document.getElementById('new-reason-text');
+            if (!titleEl.value.trim() || !textEl.value.trim()) {
+                showToast('Заполни заголовок и текст карточки', '⚠️');
+                return;
+            }
+            state.reasons.push({ icon: '💖', title: titleEl.value.trim(), text: textEl.value.trim() });
+            titleEl.value = ''; textEl.value = '';
+            renderAllBlocks();
+            showToast('Карточка добавлена!', '✨');
+        }
+
+        function addCustomScenario() {
+            const input = document.getElementById('custom-scenario-input');
+            const val = input.value.trim();
+            if (!val) return;
+            state.scenarios.unshift({ id: 'c_' + Date.now(), emoji: '🌟', title: val, desc: 'Персональный пункт нашего маршрута', selected: true });
+            input.value = '';
+            renderAllBlocks();
+            updateShareLinks();
+            showToast('Место добавлено в программу вечера!', '🌟');
+        }
+
+        function addCustomChip(cat, inputId) {
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+            if (!val) return;
+            const listMap = { drinks: state.drinks, treats: state.treats, vibes: state.vibes };
+            const selMap = { drinks: state.selectedDrinks, treats: state.selectedTreats, vibes: state.selectedVibes };
+            listMap[cat].push(val);
+            selMap[cat].push(val);
+            input.value = '';
+            renderAllBlocks();
+            updateShareLinks();
+            showToast('Добавлено в меню!', '✨');
+        }
+
+        function addCustomCoupon() {
+            const input = document.getElementById('custom-coupon-title');
+            const val = input.value.trim();
+            if (!val) return;
+            state.coupons.unshift({ id: 'cp_' + Date.now(), emoji: '🎟', title: val, desc: 'Персональный купон на это свидание', claimed: true });
+            input.value = '';
+            renderAllBlocks();
+            updateShareLinks();
+            showToast('Персональный купон создан!', '🎟');
         }
 
         function toggleScenario(id) {
@@ -636,7 +918,7 @@
             if (c) { c.claimed = !c.claimed; renderAllBlocks(); updateShareLinks(); }
         }
 
-        // --- ФОРМИРОВАНИЕ ССЫЛКИ НА ИНТЕРАКТИВНУЮ КАРТОЧКУ ---
+        // --- ФОРМИРОВАНИЕ ССЫЛКИ НА КАРТОЧКУ ---
         function buildInteractiveCardUrl() {
             const url = new URL(window.location.href.split('?')[0]);
             url.searchParams.set('view', '1');
@@ -649,14 +931,14 @@
             if (state.letterText) url.searchParams.set('msg', state.letterText);
             if (state.myTgUsername) url.searchParams.set('tg', state.myTgUsername);
 
-            const scIds = state.scenarios.filter(s => s.selected).map(s => s.id).join(',');
-            if (scIds) url.searchParams.set('sc', scIds);
-            if (state.selectedDrinks.length) url.searchParams.set('dr', state.selectedDrinks.join(','));
-            if (state.selectedTreats.length) url.searchParams.set('tr', state.selectedTreats.join(','));
-            if (state.selectedVibes.length) url.searchParams.set('vb', state.selectedVibes.join(','));
+            const scTitles = state.scenarios.filter(s => s.selected).map(s => s.title).join('||');
+            if (scTitles) url.searchParams.set('sc', scTitles);
+            if (state.selectedDrinks.length) url.searchParams.set('dr', state.selectedDrinks.join('||'));
+            if (state.selectedTreats.length) url.searchParams.set('tr', state.selectedTreats.join('||'));
+            if (state.selectedVibes.length) url.searchParams.set('vb', state.selectedVibes.join('||'));
 
-            const cpIds = state.coupons.filter(c => c.claimed).map(c => c.id).join(',');
-            if (cpIds) url.searchParams.set('cp', cpIds);
+            const cpTitles = state.coupons.filter(c => c.claimed).map(c => c.title).join('||');
+            if (cpTitles) url.searchParams.set('cp', cpTitles);
 
             return url.toString();
         }
@@ -664,30 +946,26 @@
         function updateShareLinks() {
             const cardUrl = buildInteractiveCardUrl();
             const shareBtn = document.getElementById('direct-tg-share-btn');
-            const previewText = `💌 Приглашение на свидание для ${state.recipientName} (${formatRussianDate(state.dateStr)} в ${state.timeStr})`;
+            const previewText = `💌 Особое приглашение для ${state.recipientName} (${formatRussianDate(state.dateStr)} в ${state.timeStr})`;
             shareBtn.href = `https://t.me/share/url?url=${encodeURIComponent(cardUrl)}&text=${encodeURIComponent(previewText)}`;
         }
 
         function copyInteractiveInviteLink() {
             const cardUrl = buildInteractiveCardUrl();
             const ta = document.createElement('textarea');
-            ta.value = cardUrl;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
+            ta.value = cardUrl; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
             showToast('Ссылка на интерактивную карточку скопирована! 🔗', '✅');
         }
 
-        // --- ОТПРАВКА НАТИВНОЙ ИНТЕРАКТИВНОЙ КАРТОЧКИ ЧЕРЕЗ TELEGRAM BOT API ---
+        // --- ОТПРАВКА ИНТЕРАКТИВНОЙ КАРТОЧКИ В TELEGRAM ---
         async function sendInteractiveCardViaBot() {
             const token = document.getElementById('input-bot-token').value.trim();
             const chatId = document.getElementById('input-target-chatid').value.trim();
 
             if (!token || !chatId) {
-                showToast('Укажи Bot Token и Chat ID для отправки карточки через бота', '⚠️');
+                showToast('Укажи Bot Token и Chat ID (нажми «❓ Где взять»)', '⚠️');
+                openBotGuideModal();
                 return;
             }
 
@@ -707,7 +985,9 @@
                 `☕ <b>Угощения и вайб:</b> ${escapeHtml(chosenMenu)}\n` +
                 `🎟 <b>Бонусы:</b> ${escapeHtml(chosenCoupons)}`;
 
-            const yesLabel = state.gender === 'her' ? '💖 Да, я согласна!' : '💖 Да, я согласен!';
+            const openBtnText = state.gender === 'her'
+                ? '💖 Открыть интерактивное приглашение'
+                : '✨ Открыть интерактивное приглашение';
 
             const payload = {
                 chat_id: chatId,
@@ -716,30 +996,41 @@
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: yesLabel, callback_data: `date_yes_${state.senderName}` },
-                            { text: '🙈 Надо подумать', callback_data: `date_maybe_${state.senderName}` }
+                            { text: openBtnText, web_app: { url: cardUrl } }
                         ],
                         [
-                            { text: '✨ Открыть полную интерактивную открытку', url: cardUrl }
+                            { text: '🌐 Открыть в браузере', url: cardUrl }
                         ]
                     ]
                 }
             };
 
             try {
-                const res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
+                let res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
+                let data = await res.json();
+
+                // Если web_app кнопка отклонена (например, для группового чата), отправляем с url-кнопкой
+                if (!data.ok && data.description && data.description.includes('INLINE_KEYBOARD_EXPECTED')) {
+                    payload.reply_markup.inline_keyboard = [[{ text: openBtnText, url: cardUrl }]];
+                    res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    data = await res.json();
+                }
+
                 if (data.ok) {
-                    showToast('Интерактивная карточка с кнопками отправлена в Telegram! 🎉', '✈️');
+                    showToast('Интерактивная карточка отправлена в Telegram! Перешли её в ЛС 🎉', '✈️');
                 } else {
                     showToast(`Ошибка Telegram: ${data.description}`, '⚠️');
                 }
             } catch (err) {
-                showToast('Ошибка сети при обращении к Telegram API', '⚠️');
+                showToast('Ошибка соединения с Telegram API', '⚠️');
             }
         }
 
@@ -747,30 +1038,63 @@
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // --- ОТВЕТ ПОЛУЧАТЕЛЯ ---
-        function sendRecipientDecision(isYes) {
-            if (isYes && typeof confetti === 'function') {
-                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        // --- УБЕГАЮЩАЯ КНОПКА ОТКАЗА И ОТВЕТ ПОЛУЧАТЕЛЯ ---
+        function moveRunawayButton(e) {
+            if (e) e.preventDefault();
+            const btn = document.getElementById('runaway-btn');
+            const arena = document.getElementById('question-box');
+            const arenaRect = arena.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+
+            const maxX = Math.max(24, arenaRect.width - btnRect.width - 36);
+            const maxY = Math.max(24, arenaRect.height - btnRect.height - 36);
+
+            const randomX = Math.floor(Math.random() * maxX) - (maxX / 2);
+            const randomY = Math.floor(Math.random() * maxY) - (maxY / 2);
+
+            btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+            btn.textContent = runawayPhrases[state.runawayAttempts % runawayPhrases.length];
+            state.runawayAttempts++;
+        }
+
+        function buildRecipientReplyMessage() {
+            const isHer = state.gender === 'her';
+            const agreeWord = isHer ? 'Я согласна' : 'Я согласен';
+            return `💖 ${agreeWord} пойти с тобой на свидание ${formatRussianDate(state.dateStr)} в ${state.timeStr}! До встречи, ${state.senderName} ✨`;
+        }
+
+        function acceptInvitationByRecipient() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 90, spread: 75, origin: { y: 0.6 } });
             }
 
             document.getElementById('question-box').classList.add('hidden');
             const box = document.getElementById('recipient-confirmed-box');
             box.classList.remove('hidden');
 
-            const isHer = state.gender === 'her';
-            const replyText = isYes
-                ? `💖 ${isHer ? 'Я согласна' : 'Я согласен'} пойти с тобой на свидание ${formatRussianDate(state.dateStr)} в ${state.timeStr}! До встречи, ${state.senderName} ✨`
-                : `🙈 Привет, ${state.senderName}! Спасибо за красивое приглашение, давай обсудим время встречи 💬`;
-
-            document.getElementById('reply-result-emoji').textContent = isYes ? '💖' : '🌸';
-            document.getElementById('reply-result-title').textContent = isYes ? 'Ура! До встречи!' : 'Ответ готов к отправке';
-
+            const replyText = buildRecipientReplyMessage();
             const btn = document.getElementById('recipient-send-tg-btn');
             if (state.myTgUsername) {
                 btn.href = `https://t.me/${encodeURIComponent(state.myTgUsername)}?text=${encodeURIComponent(replyText)}`;
             } else {
                 btn.href = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(replyText)}`;
             }
+        }
+
+        function copyRecipientReplyText() {
+            const ta = document.createElement('textarea');
+            ta.value = buildRecipientReplyMessage();
+            ta.style.position = 'fixed'; ta.style.left = '-9999px';
+            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            showToast('Ответ скопирован! Отправь его в чат 💌', '✅');
+        }
+
+        // --- МОДАЛКА ИНСТРУКЦИИ ---
+        function openBotGuideModal() {
+            document.getElementById('bot-guide-modal').classList.remove('hidden');
+        }
+        function closeBotGuideModal() {
+            document.getElementById('bot-guide-modal').classList.add('hidden');
         }
 
         // --- МЕЛОДИЯ ---
@@ -803,7 +1127,7 @@
             }
         }
 
-        // --- TOAST & PWA & CANVAS ---
+        // --- TOAST, PWA, CANVAS ---
         let toastTimer = null;
         function showToast(text, emoji = '💖') {
             const t = document.getElementById('toast-notification');
