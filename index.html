@@ -88,7 +88,6 @@
             padding-right: env(safe-area-inset-right);
         }
 
-        /* Фиксированный плавный градиентный фон без дёрганья на iOS/Android */
         .pastel-bg-layer {
             position: fixed;
             inset: 0;
@@ -125,16 +124,24 @@
             min-height: 100dvh;
         }
 
-        /* Облегчённый Glassmorphism для плавного скролла на телефонах */
         .glass-card {
-            background: rgba(255, 255, 255, 0.84);
+            background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.95);
             box-shadow: 0 10px 30px -8px rgba(186, 134, 150, 0.14);
         }
 
-        /* 3D Flip Cards */
+        /* Плотный непрозрачный фон для панели настроек и модальных окон */
+        .solid-drawer {
+            background-color: #FFFDF9 !important;
+            box-shadow: -12px 0 40px rgba(74, 59, 66, 0.18);
+        }
+        .solid-modal {
+            background-color: #FFFDF9 !important;
+            box-shadow: 0 20px 50px rgba(74, 59, 66, 0.22);
+        }
+
         .perspective-1000 {
             perspective: 1000px;
         }
@@ -178,10 +185,7 @@
 </head>
 <body class="antialiased selection:bg-roseSoft selection:text-ink">
 
-    <!-- Фиксированный слой фона -->
     <div class="pastel-bg-layer"></div>
-
-    <!-- Фоновый Canvas для падающих лепестков и сердечек -->
     <canvas id="petals-canvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
     <!-- Верхняя панель управления -->
@@ -209,32 +213,36 @@
                 <span class="sm:hidden">На экран</span>
             </button>
 
-            <!-- Кнопка «Настроить» -->
-            <button type="button" onclick="toggleCustomizer()" class="glass-card px-3.5 sm:px-4 py-2.5 rounded-full flex items-center gap-2 text-xs sm:text-sm font-medium text-ink hover:bg-white transition-all shadow-sm border border-roseSoft/60 cursor-pointer">
-                <svg class="w-4 h-4 text-roseDeep shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+            <!-- Кнопка «Создать / Настроить» (показывается создателю, скрывается у получателя) -->
+            <button id="header-customize-btn" type="button" onclick="toggleCustomizer()" class="px-4 py-2.5 rounded-full bg-roseDeep text-white flex items-center gap-2 text-xs sm:text-sm font-medium hover:opacity-95 transition-all shadow-md cursor-pointer">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
-                <span>Настроить</span>
+                <span>Создать приглашение</span>
             </button>
         </div>
     </header>
 
     <!-- =========================================================
-         ВЫДВИЖНАЯ ПАНЕЛЬ НАСТРОЕК (CUSTOMIZER DRAWER)
+         ПАНЕЛЬ СОЗДАТЕЛЯ ПРИГЛАШЕНИЯ (НЕПРОЗРАЧНЫЙ ФОН)
          ========================================================= -->
-    <div id="customizer-overlay" onclick="toggleCustomizer()" class="fixed inset-0 bg-ink/40 backdrop-blur-xs z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    <aside id="customizer-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-cream/98 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-roseSoft/60">
-        <div class="p-5 sm:p-6 border-b border-roseSoft/40 flex items-center justify-between bg-white/80">
+    <div id="customizer-overlay" onclick="toggleCustomizer()" class="fixed inset-0 bg-ink/50 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="customizer-drawer" class="solid-drawer fixed top-0 right-0 h-full w-full max-w-md z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-roseSoft">
+        <div class="p-5 sm:p-6 border-b border-roseSoft/50 flex items-center justify-between bg-[#FCE7EB]/40">
             <div>
-                <h3 class="font-serif text-2xl font-bold text-ink">Настройка приглашения</h3>
-                <p class="text-xs text-inkLight">Изменения применяются мгновенно</p>
+                <span class="text-[11px] font-bold uppercase tracking-widest text-roseDeep">Шаг 1 • Конструктор</span>
+                <h3 class="font-serif text-2xl font-bold text-ink">Сформировать приглашение</h3>
             </div>
-            <button type="button" onclick="toggleCustomizer()" class="w-9 h-9 rounded-full bg-blush flex items-center justify-center text-ink hover:bg-roseSoft transition-colors cursor-pointer">
+            <button type="button" onclick="toggleCustomizer()" class="w-9 h-9 rounded-full bg-white border border-roseSoft flex items-center justify-center text-ink hover:bg-blush transition-colors cursor-pointer">
                 ✕
             </button>
         </div>
 
-        <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5 text-sm">
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5 text-sm bg-[#FFFDF9]">
+            <div class="p-3.5 rounded-2xl bg-[#FCE7EB]/60 border border-roseSoft text-xs text-ink leading-relaxed">
+                Заполни данные ниже, нажми <strong>«Скопировать ссылку для отправки»</strong> и отправь её человеку в Telegram. У него откроется готовая интерактивная открытка без панели настроек.
+            </div>
+
             <!-- Кому приглашение -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-2">Кому адресовано?</label>
@@ -242,7 +250,7 @@
                     <button type="button" id="gender-her-btn" onclick="setRecipientGender('her')" class="py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer">
                         Девушке 🌷
                     </button>
-                    <button type="button" id="gender-him-btn" onclick="setRecipientGender('him')" class="py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer">
+                    <button type="button" id="gender-him-btn" onclick="setRecipientGender('him')" class="py-2.5 px-4 rounded-2xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer">
                         Парню ✨
                     </button>
                 </div>
@@ -252,11 +260,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Имя приглашаемого</label>
-                    <input type="text" id="input-recipient-name" oninput="updatePersonalization()" value="Алиса" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="text" id="input-recipient-name" oninput="updatePersonalization()" value="Алиса" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Твоё имя</label>
-                    <input type="text" id="input-sender-name" oninput="updatePersonalization()" value="Артём" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="text" id="input-sender-name" oninput="updatePersonalization()" value="Артём" class="w-full px-4 py-2.5 rounded-2xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
             </div>
 
@@ -264,44 +272,44 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Дата свидания</label>
-                    <input type="date" id="input-date" onchange="updatePersonalization()" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <input type="date" id="input-date" onchange="updatePersonalization()" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Время встречи</label>
-                    <input type="time" id="input-time" onchange="updatePersonalization()" value="19:00" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <input type="time" id="input-time" onchange="updatePersonalization()" value="19:00" class="w-full px-3 py-2.5 rounded-2xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                 </div>
             </div>
 
-            <!-- Интеграция с Telegram -->
-            <div class="p-4 rounded-2xl bg-lavender/45 border border-roseSoft/60 space-y-3">
+            <!-- Куда придёт ответ (Telegram) -->
+            <div class="p-4 rounded-2xl bg-[#EDE7F6]/65 border border-roseSoft space-y-3">
                 <div class="flex items-center gap-2">
                     <span class="text-base">✈️</span>
-                    <h4 class="font-semibold text-ink text-xs uppercase tracking-wider">Получение ответа в Telegram</h4>
+                    <h4 class="font-semibold text-ink text-xs uppercase tracking-wider">Куда прислать ответ «Да»?</h4>
                 </div>
                 <div>
-                    <label class="block text-xs text-inkLight mb-1">Твой @username в Telegram (для кнопки перехода в чат)</label>
-                    <input type="text" id="input-tg-username" oninput="updatePersonalization()" placeholder="например: artem_ivanov" class="w-full px-3.5 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <label class="block text-xs text-inkLight mb-1">Твой @username в Telegram (обязательно для кнопки ответа)</label>
+                    <input type="text" id="input-tg-username" oninput="updatePersonalization()" placeholder="например: artem_ivanov" class="w-full px-3.5 py-2 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                 </div>
                 <details class="text-xs text-inkLight">
-                    <summary class="cursor-pointer font-medium text-roseDeep select-none">Мгновенная отправка через Telegram Bot (опционально)</summary>
-                    <div class="mt-2.5 space-y-2.5 pt-2 border-t border-roseSoft/40">
+                    <summary class="cursor-pointer font-medium text-roseDeep select-none">Авто-уведомление через своего Telegram-бота (необязательно)</summary>
+                    <div class="mt-2.5 space-y-2.5 pt-2 border-t border-roseSoft/50">
                         <div>
                             <label class="block mb-1">Bot Token (от @BotFather)</label>
-                            <input type="text" id="input-tg-token" oninput="updatePersonalization()" placeholder="123456789:AAF..." class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs">
+                            <input type="text" id="input-tg-token" oninput="updatePersonalization()" placeholder="123456789:AAF..." class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs">
                         </div>
                         <div>
                             <label class="block mb-1">Твой Chat ID (от @userinfobot)</label>
-                            <input type="text" id="input-tg-chatid" oninput="updatePersonalization()" placeholder="например: 987654321" class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs">
+                            <input type="text" id="input-tg-chatid" oninput="updatePersonalization()" placeholder="например: 987654321" class="w-full px-3 py-2 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs">
                         </div>
                     </div>
                 </details>
             </div>
 
-            <!-- Добавить свой вариант свидания -->
+            <!-- Свой вариант сценария -->
             <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Добавить свой сценарий в список</label>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-inkLight mb-1.5">Добавить свой вариант свидания</label>
                 <div class="flex gap-2">
-                    <input type="text" id="input-custom-scenario" placeholder="Например: Поход в планетарий" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-white border border-roseSoft/70 focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <input type="text" id="input-custom-scenario" placeholder="Например: Поход в планетарий" class="flex-1 px-3.5 py-2.5 rounded-2xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                     <button type="button" onclick="addCustomScenarioFromDrawer()" class="px-4 py-2.5 rounded-2xl bg-roseDeep text-white font-medium hover:opacity-90 transition-opacity cursor-pointer">
                         +
                     </button>
@@ -309,20 +317,24 @@
             </div>
         </div>
 
-        <div class="p-4 sm:p-5 border-t border-roseSoft/40 bg-white/90 space-y-2.5">
-            <button type="button" onclick="copyShareableLink()" class="w-full py-3 rounded-2xl bg-blush text-roseDeep border border-roseSoft font-semibold text-xs sm:text-sm hover:bg-roseSoft/40 transition-all flex items-center justify-center gap-2 cursor-pointer">
-                <span>🔗 Скопировать персональную ссылку</span>
+        <!-- Кнопки формирования и отправки приглашения -->
+        <div class="p-4 sm:p-5 border-t border-roseSoft/60 bg-[#FCE7EB]/35 space-y-2.5">
+            <button type="button" onclick="copyShareableLink()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-semibold text-xs sm:text-sm shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>🔗 Скопировать ссылку-приглашение</span>
             </button>
-            <button type="button" onclick="toggleCustomizer()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:opacity-95 transition-opacity cursor-pointer">
-                Готово ✨
+            <a id="share-to-tg-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" onclick="prepareShareTelegramHref()" class="w-full py-3 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-medium text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>✈️ Сразу переслать в Telegram</span>
+            </a>
+            <button type="button" onclick="toggleCustomizer()" class="w-full py-2 text-xs text-inkLight hover:text-ink transition-colors cursor-pointer">
+                Посмотреть предпросмотр открытки
             </button>
         </div>
     </aside>
 
-    <!-- Модальное окно инструкции установки PWA -->
+    <!-- Модальное окно инструкции установки PWA (непрозрачное) -->
     <div id="pwa-guide-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-        <div onclick="closePwaGuideModal()" class="absolute inset-0 bg-ink/40 backdrop-blur-xs transition-opacity"></div>
-        <div class="relative z-10 glass-card bg-cream rounded-[2rem] p-6 sm:p-8 max-w-md w-full border-2 border-roseSoft shadow-2xl">
+        <div onclick="closePwaGuideModal()" class="absolute inset-0 bg-ink/50 backdrop-blur-sm transition-opacity"></div>
+        <div class="solid-modal relative z-10 rounded-[2rem] p-6 sm:p-8 max-w-md w-full border-2 border-roseSoft">
             <button type="button" onclick="closePwaGuideModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-blush flex items-center justify-center text-ink hover:bg-roseSoft transition-colors cursor-pointer">
                 ✕
             </button>
@@ -333,9 +345,9 @@
                 Добавить как приложение
             </h3>
             <p class="text-xs sm:text-sm text-inkLight mt-2 leading-relaxed">
-                Установи приглашение на главный экран телефона или рабочий стол — оно откроется на весь экран без рамок браузера с собственной иконкой.
+                Установи сайт на главный экран телефона — он откроется на весь экран без рамок браузера с собственной иконкой.
             </p>
-            <div id="pwa-ios-steps" class="mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
+            <div id="pwa-ios-steps" class="mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft text-xs sm:text-sm text-ink">
                 <div class="flex items-start gap-3">
                     <span class="w-6 h-6 rounded-full bg-blush text-roseDeep font-bold flex items-center justify-center shrink-0 text-xs">1</span>
                     <p>Нажми кнопку <strong>«Поделиться»</strong> на панели браузера Safari.</p>
@@ -345,7 +357,7 @@
                     <p>Пролистай меню вниз и выбери <strong>«На экран «Домой»»</strong>, затем нажми <strong>«Добавить»</strong>.</p>
                 </div>
             </div>
-            <div id="pwa-desktop-steps" class="hidden mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft/50 text-xs sm:text-sm text-ink">
+            <div id="pwa-desktop-steps" class="hidden mt-5 space-y-3 bg-white p-4 rounded-2xl border border-roseSoft text-xs sm:text-sm text-ink">
                 <div class="flex items-start gap-3">
                     <span class="w-6 h-6 rounded-full bg-blush text-roseDeep font-bold flex items-center justify-center shrink-0 text-xs">1</span>
                     <p>Открой меню браузера (три точки <strong>⋮</strong> в правом верхнем углу) или нажми значок установки в адресной строке.</p>
@@ -362,8 +374,8 @@
     </div>
 
     <!-- Уведомление (Toast) -->
-    <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300 w-[90%] max-w-md">
-        <div class="glass-card bg-white px-5 py-3 rounded-full shadow-xl border border-roseSoft flex items-center justify-center gap-2.5 text-xs sm:text-sm font-medium text-ink text-center">
+    <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-4 transition-all duration-300 w-[92%] max-w-md">
+        <div class="bg-[#4A3B42] text-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center justify-center gap-2.5 text-xs sm:text-sm font-medium text-center">
             <span id="toast-emoji">💖</span>
             <span id="toast-text">Скопировано!</span>
         </div>
@@ -452,7 +464,7 @@
 
         <div id="reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
 
-        <div class="mt-10 max-w-lg mx-auto">
+        <div id="add-reason-box" class="mt-10 max-w-lg mx-auto">
             <div class="glass-card p-2 rounded-full flex items-center gap-2">
                 <input type="text" id="new-reason-input" placeholder="Добавить ещё одну причину..." class="flex-1 bg-transparent px-4 py-2 text-sm text-ink placeholder:text-inkLight/70 focus:outline-none">
                 <button type="button" onclick="addCustomReason()" class="px-5 py-2.5 rounded-full bg-roseDeep text-white text-xs sm:text-sm font-medium hover:opacity-90 transition-opacity shrink-0 cursor-pointer">
@@ -488,25 +500,25 @@
             <div class="text-center mb-8 sm:mb-10">
                 <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Детали атмосферы</span>
                 <h2 class="font-serif fluid-h2 font-semibold text-ink mt-2">Меню настроения и угощений</h2>
-                <p class="text-sm sm:text-base text-inkLight mt-2">Собери идеальный коктейль из вкусов и эмоций</p>
+                <p class="text-sm sm:text-base text-inkLight mt-2">Отметь, чего бы тебе хотелось в этот вечер</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                <div class="bg-white/75 rounded-3xl p-5 border border-white">
+                <div class="bg-white/85 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>☕</span> Напитки
                     </h3>
                     <div id="drinks-list" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <div class="bg-white/75 rounded-3xl p-5 border border-white">
+                <div class="bg-white/85 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>🥐</span> Десерты и еда
                     </h3>
                     <div id="treats-list" class="flex flex-wrap gap-2"></div>
                 </div>
 
-                <div class="bg-white/75 rounded-3xl p-5 border border-white">
+                <div class="bg-white/85 rounded-3xl p-5 border border-white">
                     <h3 class="font-serif text-2xl font-semibold text-ink mb-4 flex items-center gap-2">
                         <span>✨</span> Вайб вечера
                     </h3>
@@ -587,7 +599,7 @@
 
         <!-- ФИНАЛЬНЫЙ БИЛЕТ НА СВИДАНИЕ -->
         <div id="date-pass-container" class="hidden animate-fade-up">
-            <div id="date-ticket-printable" class="glass-card bg-white/95 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10 border-2 border-roseSoft shadow-2xl max-w-2xl mx-auto relative overflow-hidden">
+            <div id="date-ticket-printable" class="glass-card bg-white rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10 border-2 border-roseSoft shadow-2xl max-w-2xl mx-auto relative overflow-hidden">
                 <div class="hidden sm:block absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-blush border-r border-roseSoft -translate-y-1/2"></div>
                 <div class="hidden sm:block absolute top-1/2 -right-4 w-8 h-8 rounded-full bg-blush border-l border-roseSoft -translate-y-1/2"></div>
 
@@ -604,7 +616,7 @@
 
                 <!-- Детали билета -->
                 <div class="py-6 space-y-4 text-sm sm:text-base">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-cream/90 p-4 rounded-2xl border border-roseSoft/40">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-cream p-4 rounded-2xl border border-roseSoft/50">
                         <div>
                             <span class="text-xs text-inkLight block">Для кого</span>
                             <span id="pass-recipient" class="font-serif text-xl font-bold text-ink">Алиса</span>
@@ -625,31 +637,31 @@
 
                     <div>
                         <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Выбранный формат:</span>
-                        <p id="pass-scenarios" class="text-ink font-medium bg-blush/40 px-4 py-2.5 rounded-xl">Уютный вечер в кофейне и прогулка под фонарями</p>
+                        <p id="pass-scenarios" class="text-ink font-medium bg-blush/50 px-4 py-2.5 rounded-xl">Уютный вечер в кофейне и прогулка под фонарями</p>
                     </div>
 
                     <div>
                         <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Вкусняшки и вайб:</span>
-                        <p id="pass-menu" class="text-ink text-sm bg-lavender/40 px-4 py-2.5 rounded-xl">Капучино, Тёплый круассан, Много смеха</p>
+                        <p id="pass-menu" class="text-ink text-sm bg-lavender/50 px-4 py-2.5 rounded-xl">Капучино, Тёплый круассан, Много смеха</p>
                     </div>
 
                     <div>
                         <span class="text-xs font-semibold uppercase tracking-wider text-inkLight block mb-1">Активированные купоны:</span>
-                        <p id="pass-coupons" class="text-ink text-sm bg-peach/50 px-4 py-2.5 rounded-xl">Все купоны активированы!</p>
+                        <p id="pass-coupons" class="text-ink text-sm bg-peach/60 px-4 py-2.5 rounded-xl">Все купоны активированы!</p>
                     </div>
                 </div>
 
                 <!-- Статус прямой отправки в Telegram Bot -->
-                <div id="tg-bot-status-box" class="hidden mb-4 p-3.5 rounded-2xl bg-sage/80 border border-roseSoft/40 text-xs sm:text-sm text-ink flex items-center gap-2.5">
+                <div id="tg-bot-status-box" class="hidden mb-4 p-3.5 rounded-2xl bg-sage border border-roseSoft/50 text-xs sm:text-sm text-ink flex items-center gap-2.5">
                     <span id="tg-bot-status-icon">⏳</span>
                     <span id="tg-bot-status-text">Отправляем ответ в Telegram...</span>
                 </div>
 
                 <!-- Кнопки действий -->
-                <div class="pt-4 border-t border-roseSoft/40 flex flex-col sm:flex-row gap-3">
+                <div class="pt-4 border-t border-roseSoft/50 flex flex-col sm:flex-row gap-3">
                     <a id="tg-direct-link-btn" href="https://t.me/" target="_blank" rel="noopener noreferrer" class="flex-1 py-3.5 px-5 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
-                        <span>Отправить ответ в Telegram</span>
+                        <span id="tg-direct-btn-label">Отправить ответ в Telegram</span>
                     </a>
 
                     <button type="button" onclick="copyResponseMessage()" class="py-3.5 px-5 rounded-2xl bg-gradient-to-r from-roseDeep to-[#E493A7] text-white font-medium text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
@@ -664,16 +676,22 @@
         </div>
     </section>
 
-    <footer class="relative z-10 text-center pb-10 pt-4 text-xs text-inkLight/80">
-        Создано с особой нежностью специально для тебя ✨
+    <footer class="relative z-10 text-center pb-10 pt-4 text-xs text-inkLight/80 space-y-2">
+        <div>Создано с особой нежностью специально для тебя ✨</div>
+        <div>
+            <button type="button" onclick="toggleCustomizer()" class="underline opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                Создать своё приглашение
+            </button>
+        </div>
     </footer>
 
     <!-- =========================================================
          JAVASCRIPT ЛОГИКА
          ========================================================= -->
     <script>
-        const STORAGE_KEY = 'pastel_date_invite_v3';
+        const STORAGE_KEY = 'pastel_date_invite_v4';
         const state = {
+            isGuestMode: false, // true, если страница открыта по персональной ссылке ?invite=1
             gender: 'her',
             recipientName: 'Алиса',
             senderName: 'Артём',
@@ -734,6 +752,12 @@
 
             loadSettingsFromStorageAndURL();
 
+            // Если открыто по готовой ссылке-приглашению (?invite=1 или ?to=...) — включаем режим получателя
+            if (state.isGuestMode) {
+                document.getElementById('header-customize-btn').classList.add('hidden');
+                document.getElementById('add-reason-box').classList.add('hidden');
+            }
+
             document.getElementById('input-recipient-name').value = state.recipientName;
             document.getElementById('input-sender-name').value = state.senderName;
             document.getElementById('input-date').value = state.dateStr;
@@ -764,7 +788,7 @@
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-4');
-            }, 3200);
+            }, 3500);
         }
 
         // --- КОНФЕТТИ ---
@@ -794,6 +818,38 @@
                 drawer.classList.add('translate-x-full');
                 setTimeout(() => overlay.classList.add('hidden'), 300);
             }
+        }
+
+        // --- ГЕНЕРАЦИЯ ПЕРСОНАЛЬНОЙ ССЫЛКИ ДЛЯ ПОЛУЧАТЕЛЯ ---
+        function buildInviteUrl() {
+            const url = new URL(window.location.href.split('?')[0]);
+            url.searchParams.set('invite', '1');
+            url.searchParams.set('to', state.recipientName);
+            url.searchParams.set('from', state.senderName);
+            url.searchParams.set('gender', state.gender);
+            url.searchParams.set('date', state.dateStr);
+            url.searchParams.set('time', state.timeStr);
+            if (state.tgUsername) url.searchParams.set('tg', state.tgUsername);
+            if (state.tgBotToken && state.tgChatId) {
+                url.searchParams.set('bot', state.tgBotToken);
+                url.searchParams.set('chat', state.tgChatId);
+            }
+            return url.toString();
+        }
+
+        function copyShareableLink() {
+            const inviteUrl = buildInviteUrl();
+            copyTextToClipboard(inviteUrl, 'Ссылка-приглашение скопирована! Отправь её в Telegram 💌');
+        }
+
+        function prepareShareTelegramHref() {
+            const inviteUrl = buildInviteUrl();
+            const isHer = state.gender === 'her';
+            const intro = isHer
+                ? `Привет, ${state.recipientName}! У меня для тебя есть маленькое приглашение ✨`
+                : `Привет, ${state.recipientName}! У меня для тебя есть кое-что интересное ✨`;
+            const shareBtn = document.getElementById('share-to-tg-btn');
+            shareBtn.href = `https://t.me/share/url?url=${encodeURIComponent(inviteUrl)}&text=${encodeURIComponent(intro)}`;
         }
 
         // --- PWA ---
@@ -839,23 +895,11 @@
                 document.getElementById('dynamic-apple-icon').href = appleIcon;
                 document.getElementById('dynamic-favicon').href = icon192;
 
-                const appUrl = new URL(window.location.href.split('?')[0]);
-                appUrl.searchParams.set('to', state.recipientName);
-                appUrl.searchParams.set('from', state.senderName);
-                appUrl.searchParams.set('gender', state.gender);
-                appUrl.searchParams.set('date', state.dateStr);
-                appUrl.searchParams.set('time', state.timeStr);
-                if (state.tgUsername) appUrl.searchParams.set('tg', state.tgUsername);
-                if (state.tgBotToken && state.tgChatId) {
-                    appUrl.searchParams.set('bot', state.tgBotToken);
-                    appUrl.searchParams.set('chat', state.tgChatId);
-                }
-
                 const manifestObj = {
-                    name: `Приглашение для ${state.recipientName}`,
+                    name: state.isGuestMode ? `Приглашение для ${state.recipientName}` : 'Конструктор свиданий',
                     short_name: 'Приглашение',
                     description: 'Особенное романтическое приглашение на свидание',
-                    start_url: appUrl.toString(),
+                    start_url: window.location.href,
                     display: 'standalone',
                     orientation: 'portrait',
                     background_color: '#FFFDF9',
@@ -927,19 +971,27 @@
 
         // --- ХРАНИЛИЩЕ И URL ---
         function loadSettingsFromStorageAndURL() {
-            try {
-                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                if (saved.gender) state.gender = saved.gender;
-                if (saved.recipientName) state.recipientName = saved.recipientName;
-                if (saved.senderName) state.senderName = saved.senderName;
-                if (saved.dateStr) state.dateStr = saved.dateStr;
-                if (saved.timeStr) state.timeStr = saved.timeStr;
-                if (saved.tgUsername) state.tgUsername = saved.tgUsername;
-                if (saved.tgBotToken) state.tgBotToken = saved.tgBotToken;
-                if (saved.tgChatId) state.tgChatId = saved.tgChatId;
-            } catch (e) {}
-
             const params = new URLSearchParams(window.location.search);
+            if (params.get('invite') === '1' || params.get('to')) {
+                state.isGuestMode = true;
+            }
+
+            // Если это не гостевой режим, подтягиваем черновик создателя из localStorage
+            if (!state.isGuestMode) {
+                try {
+                    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    if (saved.gender) state.gender = saved.gender;
+                    if (saved.recipientName) state.recipientName = saved.recipientName;
+                    if (saved.senderName) state.senderName = saved.senderName;
+                    if (saved.dateStr) state.dateStr = saved.dateStr;
+                    if (saved.timeStr) state.timeStr = saved.timeStr;
+                    if (saved.tgUsername) state.tgUsername = saved.tgUsername;
+                    if (saved.tgBotToken) state.tgBotToken = saved.tgBotToken;
+                    if (saved.tgChatId) state.tgChatId = saved.tgChatId;
+                } catch (e) {}
+            }
+
+            // Переопределяем параметрами из URL
             if (params.get('to')) state.recipientName = params.get('to');
             if (params.get('from')) state.senderName = params.get('from');
             if (params.get('tg')) state.tgUsername = params.get('tg').replace(/^@/, '');
@@ -953,6 +1005,7 @@
         }
 
         function saveSettingsToStorage() {
+            if (state.isGuestMode) return;
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify({
                     gender: state.gender,
@@ -967,21 +1020,6 @@
             } catch (e) {}
         }
 
-        function copyShareableLink() {
-            const url = new URL(window.location.href.split('?')[0]);
-            url.searchParams.set('to', state.recipientName);
-            url.searchParams.set('from', state.senderName);
-            url.searchParams.set('gender', state.gender);
-            url.searchParams.set('date', state.dateStr);
-            url.searchParams.set('time', state.timeStr);
-            if (state.tgUsername) url.searchParams.set('tg', state.tgUsername);
-            if (state.tgBotToken && state.tgChatId) {
-                url.searchParams.set('bot', state.tgBotToken);
-                url.searchParams.set('chat', state.tgChatId);
-            }
-            copyTextToClipboard(url.toString(), 'Персональная ссылка скопирована! Отправь её приглашаемому 🔗');
-        }
-
         // --- ПЕРСОНАЛИЗАЦИЯ ---
         function setRecipientGender(gender, shouldUpdate = true) {
             state.gender = gender;
@@ -990,10 +1028,10 @@
 
             if (gender === 'her') {
                 herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer';
-                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
+                himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
             } else {
                 himBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseDeep bg-blush/60 text-ink font-medium text-sm transition-all cursor-pointer';
-                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-transparent bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
+                herBtn.className = 'py-2.5 px-4 rounded-2xl border-2 border-roseSoft/50 bg-white text-inkLight font-medium text-sm hover:border-roseSoft transition-all cursor-pointer';
             }
             if (shouldUpdate) updatePersonalization();
         }
@@ -1019,6 +1057,7 @@
 
             saveSettingsToStorage();
             updateDynamicManifest();
+            prepareShareTelegramHref();
 
             const isHer = state.gender === 'her';
             const formattedDate = formatRussianDate(state.dateStr);
@@ -1308,7 +1347,7 @@
             }
         }
 
-        // --- ФИНАЛ И ОТПРАВКА В TELEGRAM ---
+        // --- ФИНАЛ И ОТПРАВКА ОТВЕТА В TELEGRAM ---
         function moveRunawayButton(e) {
             if (e) e.preventDefault();
             const btn = document.getElementById('runaway-btn');
@@ -1412,11 +1451,15 @@
                 : 'Все купоны действуют по умолчанию 💖';
 
             const tgBtn = document.getElementById('tg-direct-link-btn');
+            const tgBtnLabel = document.getElementById('tg-direct-btn-label');
             const encodedText = encodeURIComponent(buildFormattedResponseText());
+
             if (state.tgUsername) {
                 tgBtn.href = `https://t.me/${encodeURIComponent(state.tgUsername)}?text=${encodedText}`;
+                tgBtnLabel.textContent = `Отправить ответ @${state.tgUsername}`;
             } else {
                 tgBtn.href = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodedText}`;
+                tgBtnLabel.textContent = `Отправить ответ для ${state.senderName}`;
             }
         }
 
@@ -1443,7 +1486,7 @@
             );
         }
 
-        // --- АНИМАЦИЯ ЛЕПЕСТКОВ БЕЗ ДЁРГАНЬЯ НА МОБИЛЬНЫХ ---
+        // --- АНИМАЦИЯ ЛЕПЕСТКОВ ---
         function initPetalsCanvas() {
             const canvas = document.getElementById('petals-canvas');
             const ctx = canvas.getContext('2d');
@@ -1453,7 +1496,6 @@
             canvas.height = height;
 
             window.addEventListener('resize', () => {
-                // Игнорируем мелкие скачки высоты от скрытия адресной строки на мобильных
                 if (Math.abs(window.innerWidth - width) > 20) {
                     width = canvas.width = window.innerWidth;
                     height = canvas.height = window.innerHeight;
