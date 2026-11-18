@@ -54,6 +54,9 @@
     </script>
 
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         html, body {
             max-width: 100%;
             overflow-x: hidden;
@@ -67,6 +70,26 @@
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
+
+        /* Фикс вылезания input[type="date"] и input[type="time"] на iOS Safari / Telegram WebView */
+        input[type="date"],
+        input[type="time"] {
+            display: block;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
+            text-align: left;
+            background-color: #FFFFFF;
+        }
+        input[type="date"]::-webkit-date-and-time-value,
+        input[type="time"]::-webkit-date-and-time-value {
+            text-align: left;
+            margin: 0;
+        }
+
         .pastel-bg-layer {
             position: fixed;
             inset: 0;
@@ -178,13 +201,9 @@
                     <div class="font-bold text-ink mb-1">Шаг 3. Как отправить карточку девушке или парню</div>
                     <ol class="list-decimal list-inside space-y-1.5 text-ink/90">
                         <li>Вставьте <strong>Bot Token</strong> и <strong>свой Chat ID</strong> в поля на этом сайте.</li>
-                        <li>Выберите все пункты для свидания и нажмите синюю кнопку <strong>«Отправить интерактивную карточку в Telegram»</strong>.</li>
+                        <li>Выберите все пункты для свидания и нажмите синюю кнопку <strong>«Отправить интерактивную карточку в мой Telegram»</strong>.</li>
                         <li>Бот мгновенно пришлёт красивую интерактивную карточку <strong>вам в личку</strong> — просто перешлите это сообщение девушке или парню в ЛС!</li>
                     </ol>
-                </div>
-
-                <div class="p-3.5 rounded-2xl bg-cream border border-roseSoft/70 text-xs text-inkLight">
-                    💡 <strong>Для запуска прямо внутри Telegram (Mini App):</strong> в @BotFather отправьте <code class="font-mono">/newapp</code>, выберите своего бота и вставьте ссылку на этот сайт в поле <em>Web App URL</em>.
                 </div>
             </div>
 
@@ -198,7 +217,7 @@
          БЛОК 1. ПАРАМЕТРЫ ПРИГЛАШЕНИЯ (ВИДИТ ТОЛЬКО ОТПРАВИТЕЛЬ)
          ========================================================= -->
     <section id="creator-setup-section" class="relative pt-5 pb-6 px-4 sm:px-6 max-w-5xl mx-auto z-10">
-        <div class="glass-card rounded-[2rem] p-5 sm:p-8 border-2 border-roseSoft/80">
+        <div class="glass-card rounded-[2rem] p-5 sm:p-8 border-2 border-roseSoft/80 overflow-hidden">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-roseSoft/50">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-widest text-roseDeep">Шаг 1 • Настройка участников и даты</span>
@@ -215,27 +234,27 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-5 text-sm">
-                <div>
+                <div class="min-w-0">
                     <label class="block text-xs font-semibold text-inkLight mb-1">Кого приглашаешь (Имя)</label>
-                    <input type="text" id="input-recipient-name" oninput="syncUI()" value="Алиса" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="text" id="input-recipient-name" oninput="syncUI()" value="Алиса" class="w-full min-w-0 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
-                <div>
+                <div class="min-w-0">
                     <label class="block text-xs font-semibold text-inkLight mb-1">От кого (Твоё имя)</label>
-                    <input type="text" id="input-sender-name" oninput="syncUI()" value="Артём" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="text" id="input-sender-name" oninput="syncUI()" value="Артём" class="w-full min-w-0 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
-                <div>
+                <div class="min-w-0">
                     <label class="block text-xs font-semibold text-inkLight mb-1">Дата свидания</label>
-                    <input type="date" id="input-date" onchange="syncUI()" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="date" id="input-date" onchange="syncUI()" class="w-full min-w-0 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
-                <div>
+                <div class="min-w-0">
                     <label class="block text-xs font-semibold text-inkLight mb-1">Время встречи</label>
-                    <input type="time" id="input-time" onchange="syncUI()" value="19:00" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
+                    <input type="time" id="input-time" onchange="syncUI()" value="19:00" class="w-full min-w-0 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink">
                 </div>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 min-w-0">
                 <label class="block text-xs font-semibold text-inkLight mb-1">Место встречи или точка сбора</label>
-                <input type="text" id="input-place" oninput="syncUI()" placeholder="Например: Уютная кофейня в центре или заберу тебя от подъезда" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-sm">
+                <input type="text" id="input-place" oninput="syncUI()" placeholder="Например: Уютная кофейня в центре или заберу тебя от подъезда" class="w-full min-w-0 px-3.5 py-2.5 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-sm">
             </div>
         </div>
     </section>
@@ -284,7 +303,6 @@
 
         <div id="reasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"></div>
 
-        <!-- Добавить свою карточку -->
         <div id="add-reason-box" class="mt-8 max-w-2xl mx-auto glass-card p-4 rounded-3xl">
             <div class="text-xs font-semibold text-inkLight mb-2">➕ Добавить свою карточку-комплимент:</div>
             <div class="flex flex-col sm:flex-row gap-2">
@@ -298,7 +316,7 @@
     </section>
 
     <!-- =========================================================
-         БЛОК 4. МЕСТА И СЦЕНАРИИ СВИДАНИЯ (10 ВАРИАНТОВ + СВОЙ)
+         БЛОК 4. МЕСТА И СЦЕНАРИИ СВИДАНИЯ (12 ВАРИАНТОВ + СВОЙ)
          ========================================================= -->
     <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
         <div class="text-center mb-8">
@@ -309,7 +327,6 @@
 
         <div id="scenarios-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"></div>
 
-        <!-- Добавить своё место / сценарий -->
         <div id="add-scenario-box" class="mt-8 max-w-2xl mx-auto glass-card p-4 sm:p-5 rounded-3xl">
             <div class="text-xs font-semibold text-inkLight mb-2">✨ Написать свой вариант места или сценария:</div>
             <div class="flex flex-col sm:flex-row gap-2.5">
@@ -322,37 +339,37 @@
     </section>
 
     <!-- =========================================================
-         БЛОК 5. МЕНЮ НАПИТКОВ, ДЕСЕРТОВ И ВАЙБА (36 ВАРИАНТОВ + СВОИ)
+         БЛОК 5. МЕНЮ НАПИТКОВ, ЗАКУСОК И ВАЙБА (ПО МАКСИМУМУ + СВОИ)
          ========================================================= -->
     <section class="relative py-10 sm:py-14 px-4 sm:px-6 max-w-6xl mx-auto z-10">
         <div class="glass-card rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10">
             <div class="text-center mb-8">
                 <span class="text-xs uppercase tracking-widest text-roseDeep font-semibold">Детали атмосферы</span>
-                <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="menu-heading">Напитки, угощения и настроение</h3>
-                <p class="text-xs sm:text-sm text-inkLight mt-1" id="menu-sub">Отметь готовые варианты или впиши свои любимые</p>
+                <h3 class="font-serif fluid-h2 font-semibold text-ink mt-1" id="menu-heading">Напитки, закуски, десерты и вайб</h3>
+                <p class="text-xs sm:text-sm text-inkLight mt-1" id="menu-sub">Отметь готовые варианты или впиши любые свои</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Напитки -->
                 <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
                     <div>
-                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">☕ Напитки</h4>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">🥤 Напитки и кофе</h4>
                         <div id="drinks-list" class="flex flex-wrap gap-2"></div>
                     </div>
                     <div id="add-drink-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
-                        <input type="text" id="custom-drink-input" placeholder="Свой напиток..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <input type="text" id="custom-drink-input" placeholder="Свой напиток..." class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
                         <button type="button" onclick="addCustomChip('drinks', 'custom-drink-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
                     </div>
                 </div>
 
-                <!-- Десерты и еда -->
+                <!-- Закуски, еда и десерты -->
                 <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
                     <div>
-                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">🥐 Еда и десерты</h4>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">🍕 Закуски, еда и десерты</h4>
                         <div id="treats-list" class="flex flex-wrap gap-2"></div>
                     </div>
                     <div id="add-treat-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
-                        <input type="text" id="custom-treat-input" placeholder="Своё угощение..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <input type="text" id="custom-treat-input" placeholder="Своя закуска или десерт..." class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
                         <button type="button" onclick="addCustomChip('treats', 'custom-treat-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
                     </div>
                 </div>
@@ -360,11 +377,11 @@
                 <!-- Вайб вечера -->
                 <div class="bg-white/95 rounded-3xl p-5 border border-roseSoft/50 flex flex-col justify-between">
                     <div>
-                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">✨ Вайб и музыка</h4>
+                        <h4 class="font-serif text-2xl font-semibold text-ink mb-3.5">✨ Вайб и настроение</h4>
                         <div id="vibes-list" class="flex flex-wrap gap-2"></div>
                     </div>
                     <div id="add-vibe-box" class="mt-4 pt-3 border-t border-roseSoft/40 flex gap-2">
-                        <input type="text" id="custom-vibe-input" placeholder="Свой вайб..." class="flex-1 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
+                        <input type="text" id="custom-vibe-input" placeholder="Свой вайб..." class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-cream border border-roseSoft text-xs focus:outline-none focus:border-roseDeep">
                         <button type="button" onclick="addCustomChip('vibes', 'custom-vibe-input')" class="px-3.5 py-2 rounded-xl bg-blush text-roseDeep font-bold text-xs hover:bg-roseSoft/50 cursor-pointer">+</button>
                     </div>
                 </div>
@@ -412,19 +429,19 @@
 
             <div class="mt-6 space-y-5">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
+                    <div class="min-w-0">
                         <label class="block text-xs font-semibold text-inkLight mb-1.5">Bot Token (от @BotFather)</label>
-                        <input type="text" id="input-bot-token" oninput="saveBotCredentials()" placeholder="7123456789:AAH..." class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                        <input type="text" id="input-bot-token" oninput="saveBotCredentials()" placeholder="7123456789:AAH..." class="w-full min-w-0 px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="block text-xs font-semibold text-inkLight mb-1.5">Твой Chat ID (от @userinfobot)</label>
-                        <input type="text" id="input-target-chatid" oninput="saveBotCredentials()" placeholder="например: 519283746" class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                        <input type="text" id="input-target-chatid" oninput="saveBotCredentials()" placeholder="например: 519283746" class="w-full min-w-0 px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                     </div>
                 </div>
 
-                <div>
+                <div class="min-w-0">
                     <label class="block text-xs font-semibold text-inkLight mb-1.5">Твой @username в Telegram (чтобы после согласия пришёл ответ тебе в ЛС)</label>
-                    <input type="text" id="input-my-tg" oninput="saveBotCredentials()" placeholder="например: artem_ivanov" class="w-full px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
+                    <input type="text" id="input-my-tg" oninput="saveBotCredentials()" placeholder="например: artem_ivanov" class="w-full min-w-0 px-4 py-3 rounded-xl bg-white border border-roseSoft focus:outline-none focus:border-roseDeep text-ink text-xs sm:text-sm">
                 </div>
 
                 <button type="button" onclick="sendInteractiveCardViaBot()" class="w-full py-4 px-6 rounded-2xl bg-[#2AABEE] hover:bg-[#229ED9] text-white font-semibold text-sm sm:text-base shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer">
@@ -495,7 +512,7 @@
          JAVASCRIPT ЛОГИКА
          ========================================================= -->
     <script>
-        const STORAGE_KEY = 'pastel_date_ultimate_v6';
+        const STORAGE_KEY = 'pastel_date_ultimate_v7';
         const state = {
             isRecipientView: false,
             gender: 'her',
@@ -525,7 +542,7 @@
             ],
             scenarios: [
                 { id: 'coffee', emoji: '☕', title: 'Уютная кофейня и прогулка под фонарями', desc: 'Тёплые напитки, неспешные разговоры и огни вечернего города.', selected: true },
-                { id: 'cinema', emoji: '🎬', title: 'Киномарафон с пледом и любимой едой', desc: 'Атмосферные фильмы, вкусняшки и полный релакс без суеты.', selected: false },
+                { id: 'cinema', emoji: '🎬', title: 'Киномарафон с пледом и любимыми снеками', desc: 'Атмосферные фильмы, вкусняшки и полный релакс без лишней суеты.', selected: false },
                 { id: 'dinner', emoji: '🕯️', title: 'Романтический ужин при свечах', desc: 'Красивый вечер, вкусная кухня и приятная атмосфера.', selected: false },
                 { id: 'picnic', emoji: '🌅', title: 'Пикник на закате с музыкой', desc: 'Любимый плейлист, фрукты, свежий воздух и красивый закат.', selected: false },
                 { id: 'nightdrive', emoji: '🚗', title: 'Ночная поездка по городу под любимые треки', desc: 'Пустые дороги, огни ночных проспектов и разговоры по душам.', selected: false },
@@ -533,30 +550,44 @@
                 { id: 'pottery', emoji: '🏺', title: 'Творческий мастер-класс (гончарка или рисование)', desc: 'Сделать что-то своими руками на память об этом вечере.', selected: false },
                 { id: 'boat', emoji: '🛥️', title: 'Прогулка у воды или на теплоходе', desc: 'Лёгкий ветер, отражение огней в воде и красивые фото.', selected: false },
                 { id: 'boardgames', emoji: '🎲', title: 'Вечер настольных игр или антикафе', desc: 'Азарт, смех, соревновательный дух и вкусный чай.', selected: false },
-                { id: 'amusement', emoji: '🎡', title: 'Парк аттракционов и колесо обозрения', desc: 'Сладкая вата, вид на город с высоты и детские эмоции.', selected: false }
+                { id: 'amusement', emoji: '🎡', title: 'Парк аттракционов и колесо обозрения', desc: 'Сладкая вата, вид на город с высоты и детские эмоции.', selected: false },
+                { id: 'arcade', emoji: '🕹️', title: 'Игровые автоматы, боулинг или бильярд', desc: 'Лёгкий азарт, веселье и отличное настроение.', selected: false },
+                { id: 'bookstore', emoji: '📚', title: 'Прогулка по книжному и выбор книг друг другу', desc: 'Выбрать друг другу по книге и обсудить за чашкой кофе.', selected: false }
             ],
             drinks: [
-                'Капучино ☕', 'Матча-латте 🍵', 'Какао с маршмеллоу 🍫', 'Облепиховый чай 🍊',
-                'Игристое / Лимонад 🥂', 'Раф с солёной карамелью 🍯', 'Айс-латте 🧊', 'Глинтвейн 🍷',
-                'Малиновый пунш 🍓', 'Горячий шоколад 🤎', 'Фреш апельсиновый 🍹', 'Молочный коктейль 🥤'
+                'Кока-Кола 🥤', 'Пепси 🥤', 'Спрайт 🍋', 'Фанта 🍊',
+                'Швепс (Schweppes) 🫧', 'Доктор Пеппер 🍒', 'Энергетик (Red Bull / Burn) ⚡', 'Лимонад домашний 🍋',
+                'Бабл-ти (Bubble Tea) 🧋', 'Милкшейк ванильный 🍨', 'Милкшейк шоколадный 🍫', 'Смузи ягодный 🍓',
+                'Холодный чай (Lipton / Fuze) 🧊', 'Капучино ☕', 'Латте карамельный 🍮', 'Раф с солёной карамелью 🍯',
+                'Айс-латте 🧊', 'Матча-латте 🍵', 'Какао с маршмеллоу 🍫', 'Горячий шоколад 🤎',
+                'Облепиховый чай 🍊', 'Малиновый пунш 🍓', 'Глинтвейн безалкогольный 🍷', 'Мохито безалкогольный 🌿',
+                'Сок апельсиновый 🍹', 'Сок вишнёвый 🍒', 'Сок яблочный 🍏', 'Минералка с лимоном 💧',
+                'Игристое / Вино 🥂', 'Гранатовый сок ❤️'
             ],
-            selectedDrinks: ['Капучино ☕'],
+            selectedDrinks: ['Кока-Кола 🥤', 'Капучино ☕'],
             treats: [
-                'Тёплый круассан 🥐', 'Чизкейк 🍰', 'Клубника в шоколаде 🍓', 'Итальянская пицца 🍕',
-                'Мороженое 🍨', 'Макаронс 🍬', 'Суши / Роллы 🍣', 'Паста Карбонара 🍝',
-                'Сырная тарелка 🧀', 'Бельгийские вафли 🧇', 'Тирамису 🍮', 'Бургеры и картошка 🍔'
+                'Чипсы (Lay’s / Pringles) 🥔', 'Попкорн карамельный 🍿', 'Попкорн сырный 🧀', 'Начос с сырным соусом 🌮',
+                'Куриные наггетсы 🍗', 'Картошка фри 🍟', 'Сырные палочки 🧀', 'Луковые кольца 🧅',
+                'Гренки с чесноком 🥖', 'Орешки и фисташки 🥜', 'Сухарики с соусом 🥨', 'Итальянская пицца 🍕',
+                'Суши / Роллы 🍣', 'Бургеры 🍔', 'Шаурма / Ролл в лаваше 🌯', 'Паста Карбонара 🍝',
+                'Крылышки BBQ 🍖', 'Сэндвичи / Брускетты 🥪', 'Тёплый круассан 🥐', 'Чизкейк Нью-Йорк 🍰',
+                'Клубника в шоколаде 🍓', 'Мороженое 🍨', 'Макаронс 🍬', 'Японские моти 🍡',
+                'Пончики (Донаты) 🍩', 'Бельгийские вафли 🧇', 'Тирамису 🍮', 'Киндер / Шоколад 🍫',
+                'Жевательный мармелад 🐻', 'Фруктовая тарелка 🍇', 'Сырная тарелка 🧀', 'Синнабон с корицей 🌀'
             ],
-            selectedTreats: ['Тёплый круассан 🥐'],
+            selectedTreats: ['Чипсы (Lay’s / Pringles) 🥔', 'Итальянская пицца 🍕'],
             vibes: [
                 'Без телефонов 📵', 'Много смеха 😂', 'Долгие разговоры 💭', 'Плейлист на двоих 🎶',
-                'Сюрприз 🎁', 'Фото на память 📸', 'Уютный плед 🧣', 'Ночные огни 🌃',
-                'Танцы под любимую песню 💃', 'Никуда не спешить ⏳', 'Тёплые объятия 🤗', 'Искренность 💖'
+                'Просмотр фильмов / сериалов 🎬', 'Обнимашки под пледом 🧣', 'Ночные огни города 🌃', 'Фото на память 📸',
+                'Сюрприз 🎁', 'Никуда не спешить ⏳', 'Танцы под любимый трек 💃', 'Кататься на машине 🚗',
+                'Смотреть на звёзды ✨', 'Тёплые объятия 🤗', 'Душевная атмосфера 💖', 'Немного безумия 🔥',
+                'Вкусный ужин при свечах 🕯️', 'Настольные игры 🎲', 'Уют и спокойствие 🌙', 'Романтика на максимум 🌹'
             ],
             selectedVibes: ['Много смеха 😂', 'Долгие разговоры 💭'],
             coupons: [
                 { id: 'music', emoji: '🎵', title: 'Право выбора музыки', desc: 'Весь вечер играет только твой любимый плейлист', claimed: true },
                 { id: 'hugs', emoji: '🤗', title: 'Бесконечные объятия', desc: 'Действует без ограничений по времени и количеству', claimed: true },
-                { id: 'dessert', emoji: '🍰', title: 'Десерт за мой счёт', desc: 'Любой самый вкусный десерт из меню — твой', claimed: false },
+                { id: 'dessert', emoji: '🍰', title: 'Любые вкусняшки за мой счёт', desc: 'Выбирай всё, что захочется из меню и закусок', claimed: false },
                 { id: 'extend', emoji: '⏳', title: 'Продление вечера на час', desc: 'Если не захочется расходиться — гуляем ещё!', claimed: false },
                 { id: 'photos', emoji: '📸', title: 'Личный фотограф', desc: 'Сделаю для тебя самые красивые кадры за вечер', claimed: false },
                 { id: 'taxi', emoji: '🚕', title: 'Комфортная доставка домой', desc: 'Отвезу или вызову такси прямо до подъезда', claimed: false },
@@ -782,7 +813,6 @@
 
         // --- РЕНДЕР ВСЕХ ИНТЕРАКТИВНЫХ БЛОКОВ ---
         function renderAllBlocks() {
-            // 1. 3D Карточки комплиментов
             const rGrid = document.getElementById('reasons-grid');
             rGrid.innerHTML = state.reasons.map(item => `
                 <div onclick="this.classList.toggle('flipped')" class="flip-card perspective-1000 h-48 cursor-pointer group">
@@ -800,7 +830,6 @@
                 </div>
             `).join('');
 
-            // 2. Сценарии и места
             const scGrid = document.getElementById('scenarios-grid');
             const visibleScenarios = state.isRecipientView ? state.scenarios.filter(s => s.selected) : state.scenarios;
             scGrid.innerHTML = visibleScenarios.map(sc => `
@@ -818,12 +847,10 @@
                 </div>
             `).join('');
 
-            // 3. Меню напитков, угощений и вайба
             renderChipList('drinks-list', state.drinks, state.selectedDrinks, 'drinks');
             renderChipList('treats-list', state.treats, state.selectedTreats, 'treats');
             renderChipList('vibes-list', state.vibes, state.selectedVibes, 'vibes');
 
-            // 4. Купоны
             const cpGrid = document.getElementById('coupons-grid');
             const visibleCoupons = state.isRecipientView ? state.coupons.filter(c => c.claimed) : state.coupons;
             cpGrid.innerHTML = visibleCoupons.map(c => `
@@ -848,7 +875,7 @@
             el.innerHTML = list.map(item => {
                 const active = selected.includes(item);
                 const safeItem = item.replace(/'/g, "\\'");
-                return `<button type="button" onclick="${state.isRecipientView ? '' : `toggleChip('${cat}', '${safeItem}')`}" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all ${active ? 'bg-roseDeep text-white shadow-xs' : 'bg-cream text-ink border border-roseSoft hover:bg-blush/50'} ${state.isRecipientView ? 'cursor-default' : 'cursor-pointer'}">${item}</button>`;
+                return `<button type="button" onclick="${state.isRecipientView ? '' : `toggleChip('${cat}', '${safeItem}')`}" class="px-3 py-1.5 rounded-full text-xs font-medium transition-all text-left ${active ? 'bg-roseDeep text-white shadow-xs' : 'bg-cream text-ink border border-roseSoft hover:bg-blush/50'} ${state.isRecipientView ? 'cursor-default' : 'cursor-pointer'}">${item}</button>`;
             }).join('');
         }
 
@@ -982,7 +1009,7 @@
                 (state.place ? `📍 <b>Где:</b> ${escapeHtml(state.place)}\n` : '') +
                 `\n<i>«${escapeHtml(state.letterText)}»</i>\n\n` +
                 `✨ <b>Программа вечера:</b>\n${escapeHtml(chosenScenarios)}\n\n` +
-                `☕ <b>Угощения и вайб:</b> ${escapeHtml(chosenMenu)}\n` +
+                `🥤 <b>Напитки, закуски и вайб:</b> ${escapeHtml(chosenMenu)}\n` +
                 `🎟 <b>Бонусы:</b> ${escapeHtml(chosenCoupons)}`;
 
             const openBtnText = state.gender === 'her'
@@ -1013,7 +1040,6 @@
                 });
                 let data = await res.json();
 
-                // Если web_app кнопка отклонена (например, для группового чата), отправляем с url-кнопкой
                 if (!data.ok && data.description && data.description.includes('INLINE_KEYBOARD_EXPECTED')) {
                     payload.reply_markup.inline_keyboard = [[{ text: openBtnText, url: cardUrl }]];
                     res = await fetch(`https://api.telegram.org/bot${encodeURIComponent(token)}/sendMessage`, {
